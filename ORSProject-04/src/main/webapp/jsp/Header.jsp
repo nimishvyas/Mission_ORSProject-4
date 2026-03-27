@@ -28,13 +28,13 @@
 	<b>|</b>
 	<a href="#"><b>Role List</b></a>
 	<b>|</b>
-	<a href="#"><b>Logout</b></a>
+	<a href="<%=ORSView.LOGIN_CTL + "?operation=Logout"%>"><b>Logout</b></a>
 	<%
 	} else {
 	%>
 	<h3>Hi, Guest</h3>
 	<a href="<%=ORSView.WELCOME_CTL%>"><b>Welcome</b></a> |
-	<a href="#"><b>Login</b></a> |
+	<a href="<%=ORSView.LOGIN_CTL%>"><b>Login</b></a> |
 	<a href="<%=ORSView.USER_REGISTRATION_CTL%>">SignUp</a>
 	<%
 	}

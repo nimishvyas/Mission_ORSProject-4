@@ -4,7 +4,7 @@ import java.util.ResourceBundle;
 
 public class PropertyReader {
 
-	private static ResourceBundle rb = ResourceBundle.getBundle("com.rays.proj4.bundle.System");
+	private static ResourceBundle rb = ResourceBundle.getBundle("in.co.rays.proj4.bundle.system");
 
 	public static String getValue(String key) {
 
