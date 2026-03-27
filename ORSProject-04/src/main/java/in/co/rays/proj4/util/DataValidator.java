@@ -1,0 +1,176 @@
+package in.co.rays.proj4.util;
+
+import java.util.Calendar;
+import java.util.Date;
+
+public class DataValidator {
+
+	public static boolean isNull(String val) {
+		if (val == null || val.trim().length() == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean isNotNull(String val) {
+		return !isNull(val);
+	}
+
+	public static boolean isInteger(String val) {
+		if (isNotNull(val)) {
+			try {
+				Integer.parseInt(val);
+				return true;
+			} catch (NumberFormatException e) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean isLong(String val) {
+		if (isNotNull(val)) {
+			try {
+				Long.parseLong(val);
+				return true;
+			} catch (Exception e) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean isEmail(String val) {
+
+		String emailreg = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
+		if (isNotNull(val)) {
+			try {
+				return val.matches(emailreg);
+			} catch (NumberFormatException e) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean isName(String val) {
+
+		String namereg = "^[^-\\s][\\p{L} .'-]+$";
+
+		if (isNotNull(val)) {
+			try {
+				return val.matches(namereg);
+			} catch (NumberFormatException e) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean isRollNo(String val) {
+
+		String rollreg = "[a-zA-Z]{2}[0-9]{3}";
+
+		if (isNotNull(val)) {
+			try {
+				return val.matches(rollreg);
+			} catch (Exception e) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean isPassword(String val) {
+
+		String passreg = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,12}";
+
+		if (isNotNull(val)) {
+			try {
+				return val.matches(passreg);
+			} catch (NumberFormatException e) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean isPasswordLength(String val) {
+
+		if (isNotNull(val) && val.length() >= 8 && val.length() <= 12) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean isPhoneNo(String val) {
+
+		String phonereg = "^[6-9][0-9]{9}$";
+
+		if (isNotNull(val)) {
+			try {
+				return val.matches(phonereg);
+			} catch (Exception e) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean isPhoneLength(String val) {
+
+		if (isNotNull(val) && val.length() == 10) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean isDate(String val) {
+
+		Date d = null;
+
+		if (isNotNull(val)) {
+			d = DataUtility.getDate(val);
+		}
+		return d != null;
+	}
+
+	public static boolean isSunday(String val) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(DataUtility.getDate(val));
+		int i = cal.get(Calendar.DAY_OF_WEEK);
+
+		if (i == Calendar.SUNDAY) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static void main(String[] args) {
+
+		String s = " ";
+		System.out.println(DataValidator.isNull(s));
+		System.out.println(DataValidator.isNotNull("Ram"));
+		System.out.println(DataValidator.isInteger("Hek"));
+		System.out.println(DataValidator.isLong("55"));
+		System.out.println(DataValidator.isEmail("ramji.satyug@ramrajya.com"));
+		System.out.println(DataValidator.isName("Hello"));
+		System.out.println(DataValidator.isPassword("Rahul@123"));
+		System.out.println(isPhoneNo("8989898989"));
+		System.out.println(DataValidator.isDate("2001-03-02"));
+		System.out.println(DataValidator.isSunday("2026-03-22"));
+	}
+
+}
