@@ -1,3 +1,5 @@
+<%@page import="in.co.rays.proj4.util.HTMLUtility"%>
+<%@page import="java.util.HashMap"%>
 <%@page import="in.co.rays.proj4.controller.UserRegistrationCtl"%>
 <%@page import="in.co.rays.proj4.util.DataUtility"%>
 <%@page import="in.co.rays.proj4.util.ServletUtility"%>
@@ -33,54 +35,56 @@
 			<table>
 				<tr>
 					<th>First Name:</th>
-					<td><input type="text" name="firstName"
+					<td><input type="text" name="firstName" placeholder="Enter first name"
 						value="<%=DataUtility.getStringData(bean.getFirstName())%>"></td>
 					<td style="position: fixed;"><font color="red"> <%=ServletUtility.getErrorMessage("firstName", request)%></font></td>
 				</tr>
 				<tr>
 					<th>Last Name:</th>
-					<td><input type="text" name="lastName"
+					<td><input type="text" name="lastName" placeholder="Enter last name"
 						value="<%=DataUtility.getStringData(bean.getLastName())%>"></td>
 					<td style="position: fixed;"><font color="red"> <%=ServletUtility.getErrorMessage("lastName", request)%></font></td>
 				</tr>
 				<tr>
 					<th>Login ID:</th>
-					<td><input type="text" name="login"
+					<td><input type="text" name="login" placeholder="Enter email id"
 						value="<%=DataUtility.getStringData(bean.getLogin())%>"></td>
 					<td style="position: fixed;"><font color="red"> <%=ServletUtility.getErrorMessage("login", request)%></font></td>
 				</tr>
 				<tr>
 					<th>Password:</th>
-					<td><input type="text" name="password"
+					<td><input type="password" name="password" placeholder="Enter password"
 						value="<%=DataUtility.getStringData(bean.getPassword())%>"></td>
 					<td style="position: fixed;"><font color="red"> <%=ServletUtility.getErrorMessage("password", request)%></font></td>
 				</tr>
 				<tr>
-					<th>Confirm:</th>
-					<td><input type="text" name="confirmPassword"
+					<th>Confirm password:</th>
+					<td><input type="password" name="confirmPassword" placeholder="Re-enter same password"
 						value="<%=DataUtility.getStringData(bean.getConfirmPassword())%>"></td>
 					<td style="position: fixed;"><font color="red"> <%=ServletUtility.getErrorMessage("confirmPassword", request)%></font></td>
 				</tr>
 				<tr>
 					<th>DOB:</th>
-					<td><input type="date" name="dob"
+					<td><input type="date" name="dob" 
 						value="<%=DataUtility.getDateString(bean.getDob())%>"
 						style="width: 98%"></td>
 					<td style="position: fixed;"><font color="red"> <%=ServletUtility.getErrorMessage("dob", request)%></font></td>
 				</tr>
 				<tr>
 					<th>Gender:</th>
-					<td><select style="width: 169px; text-align-last: center;"
-						class='form-control' name='gender'>
-							<option selected value=''>-------------Select-------------</option>
-							<option value='female'>female</option>
-							<option value='male'>male</option>
-					</select></td>
+					<td>
+						<%
+						HashMap<String, String> map = new HashMap<String, String>();
+						map.put("female", "Female");
+						map.put("male", "Male");
+						map.put("other", "Other");
+						%><%=HTMLUtility.getList("gender", bean.getGender(), map)%>
+					</td>
 					<td style="position: fixed;"><font color="red"> <%=ServletUtility.getErrorMessage("gender", request)%></font></td>
 				</tr>
 				<tr>
 					<th>Mobile:</th>
-					<td><input type="text" name="mobileNo"
+					<td><input type="text" name="mobileNo" placeholder="Enter mobile no"
 						value="<%=DataUtility.getStringData(bean.getMobileNo())%>"></td>
 					<td style="position: fixed;"><font color="red"> <%=ServletUtility.getErrorMessage("mobileNo", request)%></font></td>
 				</tr>

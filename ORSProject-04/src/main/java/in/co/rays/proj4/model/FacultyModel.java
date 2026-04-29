@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import in.co.rays.proj4.bean.CollegeBean;
 import in.co.rays.proj4.bean.CourseBean;
 import in.co.rays.proj4.bean.FacultyBean;
@@ -15,9 +17,30 @@ import in.co.rays.proj4.exception.DatabaseException;
 import in.co.rays.proj4.exception.DuplicateRecordException;
 import in.co.rays.proj4.util.JDBCDataSource;
 
+/**
+ * FacultyModel class handles all database operations related to Faculty.
+ * 
+ * It provides methods for CRUD operations, search with pagination and finding
+ * faculty by email or primary key.
+ * 
+ * This class interacts with ST_FACULTY table.
+ * 
+ * @author Nimish
+ */
 public class FacultyModel {
 
+	Logger log = Logger.getLogger(FacultyModel.class);
+
+	/**
+	 * Generates next primary key for ST_FACULTY table.
+	 * 
+	 * @return next primary key
+	 * @throws DatabaseException
+	 */
 	public Integer nextPk() throws DatabaseException {
+
+		log.debug("nextPk is called");
+
 		Connection conn = null;
 		int pk = 0;
 		try {
@@ -37,21 +60,32 @@ public class FacultyModel {
 		return pk + 1;
 	}
 
+	/**
+	 * Adds a new faculty record.
+	 * 
+	 * @param bean FacultyBean containing faculty data
+	 * @return generated primary key
+	 * @throws ApplicationException
+	 * @throws DuplicateRecordException if email already exists
+	 */
 	public long add(FacultyBean bean) throws ApplicationException, DuplicateRecordException {
+
+		log.debug("add is called");
+
 		Connection conn = null;
 		int pk = 0;
 
-		//CollegeModel collegeModel = new CollegeModel();
-		//CollegeBean collegeBean = collegeModel.findByPk(bean.getCollegeId());
-		//bean.setCollegeName(collegeBean.getName());
+		CollegeModel collegeModel = new CollegeModel();
+		CollegeBean collegeBean = collegeModel.findByPk(bean.getCollegeId());
+		bean.setCollegeName(collegeBean.getName());
 
-		//CourseModel courseModel = new CourseModel();
-		//CourseBean courseBean = courseModel.findByPk(bean.getCourseId());
-		//bean.setCourseName(courseBean.getName());
+		CourseModel courseModel = new CourseModel();
+		CourseBean courseBean = courseModel.findByPk(bean.getCourseId());
+		bean.setCourseName(courseBean.getName());
 
-		//SubjectModel subjectModel = new SubjectModel();
-		//SubjectBean subjectBean = subjectModel.findByPk(bean.getSubjectId());
-		//bean.setSubjectName(subjectBean.getName());
+		SubjectModel subjectModel = new SubjectModel();
+		SubjectBean subjectBean = subjectModel.findByPk(bean.getSubjectId());
+		bean.setSubjectName(subjectBean.getName());
 
 		FacultyBean existbean = findByEmail(bean.getEmail());
 
@@ -62,7 +96,7 @@ public class FacultyModel {
 		try {
 			conn = JDBCDataSource.getConnection();
 			pk = nextPk();
-			conn.setAutoCommit(false); // Begin transaction
+			conn.setAutoCommit(false);
 			PreparedStatement pstmt = conn.prepareStatement(
 					"insert into st_faculty values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			pstmt.setInt(1, pk);
@@ -83,7 +117,7 @@ public class FacultyModel {
 			pstmt.setTimestamp(16, bean.getCreatedDatetime());
 			pstmt.setTimestamp(17, bean.getModifiedDatetime());
 			pstmt.executeUpdate();
-			conn.commit(); // End transaction
+			conn.commit();
 			pstmt.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -99,23 +133,30 @@ public class FacultyModel {
 		return pk;
 	}
 
+	/**
+	 * Updates an existing faculty record.
+	 * 
+	 * @param bean FacultyBean with updated data
+	 * @throws ApplicationException
+	 * @throws DuplicateRecordException if email already exists
+	 */
 	public void update(FacultyBean bean) throws ApplicationException, DuplicateRecordException {
+
+		log.debug("update is called");
+
 		Connection conn = null;
 
-		// get College Name
-		/*CollegeModel collegeModel = new CollegeModel();
+		CollegeModel collegeModel = new CollegeModel();
 		CollegeBean collegeBean = collegeModel.findByPk(bean.getCollegeId());
 		bean.setCollegeName(collegeBean.getName());
 
-		// get Course Name
 		CourseModel courseModel = new CourseModel();
 		CourseBean courseBean = courseModel.findByPk(bean.getCourseId());
 		bean.setCourseName(courseBean.getName());
 
-		// get Subject Name
 		SubjectModel subjectModel = new SubjectModel();
 		SubjectBean subjectBean = subjectModel.findByPk(bean.getSubjectId());
-		bean.setSubjectName(subjectBean.getName()); */
+		bean.setSubjectName(subjectBean.getName());
 
 		FacultyBean beanExist = findByEmail(bean.getEmail());
 		if (beanExist != null && !(beanExist.getId() == bean.getId())) {
@@ -123,11 +164,9 @@ public class FacultyModel {
 		}
 		try {
 			conn = JDBCDataSource.getConnection();
-
 			conn.setAutoCommit(false);
 			PreparedStatement pstmt = conn.prepareStatement(
 					"update st_faculty set first_name = ?, last_name = ?, dob = ?, gender = ?, mobile_no = ?, email = ?, college_id = ?, college_name = ?, course_id = ?, course_name = ?, subject_id = ?, subject_name = ?, created_by = ?, modified_by = ?, created_datetime = ?, modified_datetime = ? where id = ?");
-
 			pstmt.setString(1, bean.getFirstName());
 			pstmt.setString(2, bean.getLastName());
 			pstmt.setDate(3, new java.sql.Date(bean.getDob().getTime()));
@@ -160,7 +199,16 @@ public class FacultyModel {
 		}
 	}
 
+	/**
+	 * Deletes a faculty record.
+	 * 
+	 * @param bean FacultyBean containing ID
+	 * @throws ApplicationException
+	 */
 	public void delete(FacultyBean bean) throws ApplicationException {
+
+		log.debug("delete is called");
+
 		Connection conn = null;
 		try {
 			conn = JDBCDataSource.getConnection();
@@ -182,7 +230,17 @@ public class FacultyModel {
 		}
 	}
 
+	/**
+	 * Finds faculty by primary key.
+	 * 
+	 * @param pk faculty ID
+	 * @return FacultyBean
+	 * @throws ApplicationException
+	 */
 	public FacultyBean findByPk(long pk) throws ApplicationException {
+
+		log.debug("findByPk is called");
+
 		StringBuffer sql = new StringBuffer("select * from st_faculty where id = ?");
 		FacultyBean bean = null;
 		Connection conn = null;
@@ -221,7 +279,17 @@ public class FacultyModel {
 		return bean;
 	}
 
+	/**
+	 * Finds faculty by email.
+	 * 
+	 * @param email faculty email
+	 * @return FacultyBean
+	 * @throws ApplicationException
+	 */
 	public FacultyBean findByEmail(String email) throws ApplicationException {
+
+		log.debug("findByEmail is called");
+
 		StringBuffer sql = new StringBuffer("select * from st_faculty where email = ?");
 		FacultyBean bean = null;
 		Connection conn = null;
@@ -263,7 +331,19 @@ public class FacultyModel {
 		return bean;
 	}
 
+	/**
+	 * Searches faculties with filters and pagination.
+	 * 
+	 * @param bean     FacultyBean containing search filters
+	 * @param pageNo   page number
+	 * @param pageSize number of records per page
+	 * @return list of FacultyBean
+	 * @throws ApplicationException
+	 */
 	public List<FacultyBean> search(FacultyBean bean, int pageNo, int pageSize) throws ApplicationException {
+
+		log.debug("search is called");
+
 		StringBuffer sql = new StringBuffer("select * from st_faculty where 1=1");
 
 		if (bean != null) {

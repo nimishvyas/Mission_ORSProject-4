@@ -31,24 +31,36 @@
 			<table>
 				<tr>
 					<th>Login Id:</th>
-					<td><input type="text" name="login"
+					<td><input type="text" name="login" placeholder="Enter email id"
 						value="<%=DataUtility.getStringData(bean.getLogin())%>"></td>
 					<td style="position: fixed;"><font color="red"><%=ServletUtility.getErrorMessage("login", request)%></font></td>
 				</tr>
 				<tr>
 					<th>Password:</th>
-					<td><input type="text" name="password"
+					<td><input type="password" name="password" 
 						value="<%=DataUtility.getStringData(bean.getPassword())%>"></td>
 					<td style="position: fixed;"><font color="red"><%=ServletUtility.getErrorMessage("password", request)%></font></td>
 				</tr>
 				<tr>
 					<td></td>
 					<td><input type="submit" name="operation"
-						value="<%=LoginCtl.OP_SIGN_IN%>"></td>
+						value="<%=LoginCtl.OP_SIGN_IN%>">
+						
+					<input type="submit" name="operation"
+						value="<%=LoginCtl.OP_SIGN_UP%>"></td>
+				</tr>
+				<tr>
+					<th></th>
+					<td></td>
+				</tr>
+				<tr>
+					<th></th>
+					<td><a href="<%=ORSView.FORGET_PASSWORD_CTL%>"><b>Forget my password?</b></a>&nbsp;</td>
 				</tr>
 			</table>
 		</div>
 
 	</form>
+	<%@ include file="Footer.jsp"%>
 </body>
 </html>

@@ -83,7 +83,7 @@ public class testStudent {
 
 		StudentModel model = new StudentModel();
 
-		StudentBean bean = model.findByEmail("rahul@gmail.com");
+		StudentBean bean = model.findByEmailId("rahul@gmail.com");
 
 		if (bean != null) {
 			System.out.println(bean.getId() + " " + bean.getFirstName());

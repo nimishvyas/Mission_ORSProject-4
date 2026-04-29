@@ -1,24 +1,47 @@
 package in.co.rays.proj4.model;
 
 import java.sql.Connection;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import in.co.rays.proj4.bean.StudentBean;
+import org.apache.log4j.Logger;
 
+import in.co.rays.proj4.bean.CollegeBean;
+import in.co.rays.proj4.bean.StudentBean;
 import in.co.rays.proj4.exception.ApplicationException;
 import in.co.rays.proj4.exception.DatabaseException;
 import in.co.rays.proj4.exception.DuplicateRecordException;
 import in.co.rays.proj4.util.JDBCDataSource;
 
+/**
+ * StudentModel class handles all database operations related to Student.
+ * 
+ * It provides methods for CRUD operations, search with pagination and finding
+ * student by email or primary key.
+ * 
+ * This class interacts with ST_STUDENT table.
+ * 
+ * @author Nimish
+ */
 public class StudentModel {
 
+	Logger log = Logger.getLogger(StudentModel.class);
+
+	/**
+	 * Generates next primary key for ST_STUDENT table.
+	 * 
+	 * @return next primary key
+	 * @throws DatabaseException
+	 */
 	public Integer nextPk() throws DatabaseException {
+
+		log.debug("nextPk is called");
+
 		Connection conn = null;
-		int pk = 1;
+		int pk = 0;
+
 		try {
 			conn = JDBCDataSource.getConnection();
 			PreparedStatement pstmt = conn.prepareStatement("select max(id) from st_student");
@@ -29,26 +52,45 @@ public class StudentModel {
 			rs.close();
 			pstmt.close();
 		} catch (Exception e) {
-			throw new DatabaseException("Exception in finding pk" + e.getMessage());
-		}finally {
+			throw new DatabaseException("Exception : Exception in getting PK");
+		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
 		return pk + 1;
 	}
 
-	public long add(StudentBean bean) throws DuplicateRecordException, ApplicationException {
+	/**
+	 * Adds a new student record.
+	 * 
+	 * @param bean StudentBean containing student data
+	 * @return generated primary key
+	 * @throws ApplicationException
+	 * @throws DuplicateRecordException if email already exists
+	 */
+	public long add(StudentBean bean) throws ApplicationException, DuplicateRecordException {
+
+		log.debug("add is called");
+
 		Connection conn = null;
+
+		CollegeModel collegeModel = new CollegeModel();
+		CollegeBean collegeBean = collegeModel.findByPk(bean.getCollegeId());
+		bean.setCollegeName(collegeBean.getName());
+
+		StudentBean existBean = findByEmailId(bean.getEmail());
 		int pk = 0;
-		StudentBean beanExist = findByEmail(bean.getEmail());
-		if (beanExist != null) {
-			throw new DuplicateRecordException("Email id already exists");
+
+		if (existBean != null) {
+			throw new DuplicateRecordException("Email already exists");
 		}
+
 		try {
+			pk = nextPk();
 			conn = JDBCDataSource.getConnection();
 			conn.setAutoCommit(false);
-			pk = nextPk();
-			PreparedStatement pstmt = conn.prepareStatement("insert into st_student values(?,?,?,?,?,?,?,?,?,?,?,?,?)");
-			pstmt.setLong(1, pk);
+			PreparedStatement pstmt = conn
+					.prepareStatement("insert into st_student values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+			pstmt.setInt(1, pk);
 			pstmt.setString(2, bean.getFirstName());
 			pstmt.setString(3, bean.getLastName());
 			pstmt.setDate(4, new java.sql.Date(bean.getDob().getTime()));
@@ -68,22 +110,39 @@ public class StudentModel {
 			try {
 				conn.rollback();
 			} catch (Exception ex) {
-				throw new ApplicationException("Exception in add rollback");
+				throw new ApplicationException("Exception : add rollback exception " + ex.getMessage());
 			}
-			throw new ApplicationException("Exception in adding student" + e.getMessage());
+			e.printStackTrace();
+			throw new ApplicationException("Exception : Exception in add Student");
 		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
 		return pk;
-
 	}
 
+	/**
+	 * Updates an existing student record.
+	 * 
+	 * @param bean StudentBean with updated data
+	 * @throws ApplicationException
+	 * @throws DuplicateRecordException if email already exists
+	 */
 	public void update(StudentBean bean) throws ApplicationException, DuplicateRecordException {
+
+		log.debug("update is called");
+
 		Connection conn = null;
-		StudentBean beanExist = findByEmail(bean.getEmail());
-		if (beanExist != null && beanExist.getId() != bean.getId()) {
-			throw new DuplicateRecordException("Email id already exists");
+
+		StudentBean existBean = findByEmailId(bean.getEmail());
+
+		if (existBean != null && existBean.getId() != bean.getId()) {
+			throw new DuplicateRecordException("Email Id is already exist");
 		}
+
+		CollegeModel collegeModel = new CollegeModel();
+		CollegeBean collegeBean = collegeModel.findByPk(bean.getCollegeId());
+		bean.setCollegeName(collegeBean.getName());
+
 		try {
 			conn = JDBCDataSource.getConnection();
 			conn.setAutoCommit(false);
@@ -109,7 +168,7 @@ public class StudentModel {
 			try {
 				conn.rollback();
 			} catch (Exception ex) {
-				throw new ApplicationException("Exception : Update rollback exception " + ex.getMessage());
+				throw new ApplicationException("Exception : Delete rollback exception " + ex.getMessage());
 			}
 			e.printStackTrace();
 			throw new ApplicationException("Exception in updating Student ");
@@ -118,17 +177,25 @@ public class StudentModel {
 		}
 	}
 
+	/**
+	 * Deletes a student record.
+	 * 
+	 * @param bean StudentBean containing ID
+	 * @throws ApplicationException
+	 */
 	public void delete(StudentBean bean) throws ApplicationException {
+
+		log.debug("delete is called");
 
 		Connection conn = null;
 
 		try {
 			conn = JDBCDataSource.getConnection();
-			conn.setAutoCommit(false); // Begin transaction
+			conn.setAutoCommit(false);
 			PreparedStatement pstmt = conn.prepareStatement("delete from st_student where id = ?");
 			pstmt.setLong(1, bean.getId());
 			pstmt.executeUpdate();
-			conn.commit(); // End transaction
+			conn.commit();
 			pstmt.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -137,45 +204,23 @@ public class StudentModel {
 			} catch (Exception ex) {
 				throw new ApplicationException("Exception : Delete rollback exception " + ex.getMessage());
 			}
-			throw new ApplicationException("Exception : Exception in delete Student" + e.getMessage());
+			throw new ApplicationException("Exception : Exception in delete Student");
 		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
 	}
 
-	public StudentBean findByEmail(String email) throws ApplicationException {
-		Connection conn = null;
-		StudentBean bean = null;
-		try {
-			conn = JDBCDataSource.getConnection();
-			PreparedStatement pstmt = conn.prepareStatement("select * from st_student where email = ?");
-			pstmt.setString(1, email);
-			ResultSet rs = pstmt.executeQuery();
-			while (rs.next()) {
-				bean = new StudentBean();
-				bean.setId(rs.getLong(1));
-				bean.setFirstName(rs.getString(2));
-				bean.setLastName(rs.getString(3));
-				bean.setDob(rs.getDate(4));
-				bean.setGender(rs.getString(5));
-				bean.setMobileNo(rs.getString(6));
-				bean.setEmail(rs.getString(7));
-				bean.setCollegeId(rs.getLong(8));
-				bean.setCollegeName(rs.getString(9));
-				bean.setCreatedBy(rs.getString(10));
-				bean.setModifiedBy(rs.getString(11));
-				bean.setCreatedDatetime(rs.getTimestamp(12));
-				bean.setModifiedDatetime(rs.getTimestamp(13));
-			}
-			rs.close();
-			pstmt.close();
-		} catch (Exception e) {
-			throw new ApplicationException("Exception in find by email" + e.getMessage());
-		}
-		return bean;
-	}
-
+	/**
+	 * Finds student by primary key.
+	 * 
+	 * @param pk student ID
+	 * @return StudentBean
+	 * @throws ApplicationException
+	 */
 	public StudentBean findByPk(long pk) throws ApplicationException {
+
+		log.debug("findByPk is called");
+
 		StringBuffer sql = new StringBuffer("select * from st_student where id = ?");
 		StudentBean bean = null;
 		Connection conn = null;
@@ -211,7 +256,77 @@ public class StudentModel {
 		return bean;
 	}
 
+	/**
+	 * Finds student by email ID.
+	 * 
+	 * @param Email student email
+	 * @return StudentBean
+	 * @throws ApplicationException
+	 */
+	public StudentBean findByEmailId(String Email) throws ApplicationException {
+
+		log.debug("findByEmailId is called");
+
+		StringBuffer sql = new StringBuffer("select * from st_student where email = ?");
+		StudentBean bean = null;
+		Connection conn = null;
+
+		try {
+			conn = JDBCDataSource.getConnection();
+			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
+			pstmt.setString(1, Email);
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				bean = new StudentBean();
+				bean.setId(rs.getLong(1));
+				bean.setFirstName(rs.getString(2));
+				bean.setLastName(rs.getString(3));
+				bean.setDob(rs.getDate(4));
+				bean.setGender(rs.getString(5));
+				bean.setMobileNo(rs.getString(6));
+				bean.setEmail(rs.getString(7));
+				bean.setCollegeId(rs.getLong(8));
+				bean.setCollegeName(rs.getString(9));
+				bean.setCreatedBy(rs.getString(10));
+				bean.setModifiedBy(rs.getString(11));
+				bean.setCreatedDatetime(rs.getTimestamp(12));
+				bean.setModifiedDatetime(rs.getTimestamp(13));
+			}
+			rs.close();
+			pstmt.close();
+		} catch (Exception e) {
+			throw new ApplicationException("Exception : Exception in getting User by Email");
+		} finally {
+			JDBCDataSource.closeConnection(conn);
+		}
+		return bean;
+	}
+
+	/**
+	 * Returns list of all student records.
+	 * 
+	 * @return list of StudentBean
+	 * @throws ApplicationException
+	 */
+	public List<StudentBean> list() throws ApplicationException {
+
+		log.debug("list is called");
+
+		return search(null, 0, 0);
+	}
+
+	/**
+	 * Searches students with filters and pagination.
+	 * 
+	 * @param bean     StudentBean containing search filters
+	 * @param pageNo   page number
+	 * @param pageSize number of records per page
+	 * @return list of StudentBean
+	 * @throws ApplicationException
+	 */
 	public List<StudentBean> search(StudentBean bean, int pageNo, int pageSize) throws ApplicationException {
+
+		log.debug("search is called");
 
 		StringBuffer sql = new StringBuffer("select * from st_student where 1 = 1");
 

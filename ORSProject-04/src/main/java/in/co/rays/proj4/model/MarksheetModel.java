@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import in.co.rays.proj4.bean.MarksheetBean;
 import in.co.rays.proj4.bean.StudentBean;
 import in.co.rays.proj4.exception.ApplicationException;
@@ -13,9 +15,30 @@ import in.co.rays.proj4.exception.DatabaseException;
 import in.co.rays.proj4.exception.DuplicateRecordException;
 import in.co.rays.proj4.util.JDBCDataSource;
 
+/**
+ * MarksheetModel class handles all database operations related to Marksheet.
+ * 
+ * It provides methods for CRUD operations, search with pagination, finding
+ * marksheet by roll number or primary key and getting merit list.
+ * 
+ * This class interacts with ST_MARKSHEET table.
+ * 
+ * @author Nimish
+ */
 public class MarksheetModel {
 
+	Logger log = Logger.getLogger(MarksheetModel.class);
+
+	/**
+	 * Generates next primary key for ST_MARKSHEET table.
+	 * 
+	 * @return next primary key
+	 * @throws DatabaseException
+	 */
 	public Integer nextPk() throws DatabaseException {
+
+		log.debug("nextPk is called");
+
 		Connection conn = null;
 		int pk = 0;
 		try {
@@ -35,15 +58,24 @@ public class MarksheetModel {
 		return pk + 1;
 	}
 
+	/**
+	 * Adds a new marksheet record.
+	 * 
+	 * @param bean MarksheetBean containing marksheet data
+	 * @return generated primary key
+	 * @throws ApplicationException
+	 * @throws DuplicateRecordException if roll number already exists
+	 */
 	public long add(MarksheetBean bean) throws ApplicationException, DuplicateRecordException {
 
-		Connection conn = null;
+		log.debug("add is called");
 
+		Connection conn = null;
 		int pk = 0;
 
-		//StudentModel studentModel = new StudentModel();
-		//StudentBean studentbean = studentModel.findByPk(bean.getStudentId());
-		//bean.setName(studentbean.getFirstName() + " " + studentbean.getLastName());
+		StudentModel studentModel = new StudentModel();
+		StudentBean studentbean = studentModel.findByPk(bean.getStudentId());
+		bean.setName(studentbean.getFirstName() + " " + studentbean.getLastName());
 
 		MarksheetBean duplicateMarksheet = findByRollNo(bean.getRollNo());
 
@@ -54,7 +86,7 @@ public class MarksheetModel {
 		try {
 			conn = JDBCDataSource.getConnection();
 			pk = nextPk();
-			conn.setAutoCommit(false); // Begin transaction
+			conn.setAutoCommit(false);
 			PreparedStatement pstmt = conn
 					.prepareStatement("insert into st_marksheet values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			pstmt.setInt(1, pk);
@@ -69,7 +101,7 @@ public class MarksheetModel {
 			pstmt.setTimestamp(10, bean.getCreatedDatetime());
 			pstmt.setTimestamp(11, bean.getModifiedDatetime());
 			pstmt.executeUpdate();
-			conn.commit(); // End transaction
+			conn.commit();
 			pstmt.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -85,7 +117,16 @@ public class MarksheetModel {
 		return pk;
 	}
 
+	/**
+	 * Updates an existing marksheet record.
+	 * 
+	 * @param bean MarksheetBean with updated data
+	 * @throws ApplicationException
+	 * @throws DuplicateRecordException if roll number already exists
+	 */
 	public void update(MarksheetBean bean) throws ApplicationException, DuplicateRecordException {
+
+		log.debug("update is called");
 
 		Connection conn = null;
 
@@ -95,14 +136,13 @@ public class MarksheetModel {
 			throw new DuplicateRecordException("Roll No is already exist");
 		}
 
-		//StudentModel studentModel = new StudentModel();
-		//StudentBean studentbean = studentModel.findByPk(bean.getStudentId());
-		//bean.setName(studentbean.getFirstName() + " " + studentbean.getLastName());
+		StudentModel studentModel = new StudentModel();
+		StudentBean studentbean = studentModel.findByPk(bean.getStudentId());
+		bean.setName(studentbean.getFirstName() + " " + studentbean.getLastName());
 
 		try {
 			conn = JDBCDataSource.getConnection();
-
-			conn.setAutoCommit(false); // Begin transaction
+			conn.setAutoCommit(false);
 			PreparedStatement pstmt = conn.prepareStatement(
 					"update st_marksheet set roll_no = ?, student_id = ?, name = ?, physics = ?, chemistry = ?, maths = ?, created_by = ?, modified_by = ?, created_datetime = ?, modified_datetime = ? where id = ?");
 			pstmt.setString(1, bean.getRollNo());
@@ -117,7 +157,7 @@ public class MarksheetModel {
 			pstmt.setTimestamp(10, bean.getModifiedDatetime());
 			pstmt.setLong(11, bean.getId());
 			pstmt.executeUpdate();
-			conn.commit(); // End transaction
+			conn.commit();
 			pstmt.close();
 		} catch (Exception e) {
 			try {
@@ -131,18 +171,26 @@ public class MarksheetModel {
 		}
 	}
 
+	/**
+	 * Deletes a marksheet record.
+	 * 
+	 * @param bean MarksheetBean containing ID
+	 * @throws ApplicationException
+	 */
 	public void delete(MarksheetBean bean) throws ApplicationException {
+
+		log.debug("delete is called");
 
 		Connection conn = null;
 
 		try {
 			conn = JDBCDataSource.getConnection();
-			conn.setAutoCommit(false); // Begin transaction
+			conn.setAutoCommit(false);
 			PreparedStatement pstmt = conn.prepareStatement("delete from st_marksheet where id = ?");
 			pstmt.setLong(1, bean.getId());
 			System.out.println("Deleted Marksheet");
 			pstmt.executeUpdate();
-			conn.commit(); // End transaction
+			conn.commit();
 			pstmt.close();
 		} catch (Exception e) {
 			try {
@@ -156,7 +204,16 @@ public class MarksheetModel {
 		}
 	}
 
+	/**
+	 * Finds marksheet by primary key.
+	 * 
+	 * @param pk marksheet ID
+	 * @return MarksheetBean
+	 * @throws ApplicationException
+	 */
 	public MarksheetBean findByPk(long pk) throws ApplicationException {
+
+		log.debug("findByPk is called");
 
 		StringBuffer sql = new StringBuffer("select * from st_marksheet where id = ?");
 		MarksheetBean bean = null;
@@ -191,7 +248,16 @@ public class MarksheetModel {
 		return bean;
 	}
 
+	/**
+	 * Finds marksheet by roll number.
+	 * 
+	 * @param rollNo student roll number
+	 * @return MarksheetBean
+	 * @throws ApplicationException
+	 */
 	public MarksheetBean findByRollNo(String rollNo) throws ApplicationException {
+
+		log.debug("findByRollNo is called");
 
 		StringBuffer sql = new StringBuffer("select * from st_marksheet where roll_no = ?");
 		MarksheetBean bean = null;
@@ -226,7 +292,18 @@ public class MarksheetModel {
 		return bean;
 	}
 
+	/**
+	 * Searches marksheets with filters and pagination.
+	 * 
+	 * @param bean     MarksheetBean containing search filters
+	 * @param pageNo   page number
+	 * @param pageSize number of records per page
+	 * @return list of MarksheetBean
+	 * @throws ApplicationException
+	 */
 	public List<MarksheetBean> search(MarksheetBean bean, int pageNo, int pageSize) throws ApplicationException {
+
+		log.debug("search is called");
 
 		StringBuffer sql = new StringBuffer("select * from st_marksheet where 1=1");
 
@@ -286,7 +363,19 @@ public class MarksheetModel {
 		return list;
 	}
 
+	/**
+	 * Returns merit list of students who have passed in all subjects.
+	 * Students who have scored more than 33 marks in all subjects are
+	 * included in the merit list ordered by total marks in descending order.
+	 * 
+	 * @param pageNo   page number
+	 * @param pageSize number of records per page
+	 * @return list of MarksheetBean
+	 * @throws ApplicationException
+	 */
 	public List<MarksheetBean> getMeritList(int pageNo, int pageSize) throws ApplicationException {
+
+		log.debug("getMeritList is called");
 
 		ArrayList<MarksheetBean> list = new ArrayList<MarksheetBean>();
 		StringBuffer sql = new StringBuffer(
