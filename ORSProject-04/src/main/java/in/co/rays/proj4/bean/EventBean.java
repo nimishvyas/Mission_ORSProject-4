@@ -2,12 +2,13 @@ package in.co.rays.proj4.bean;
 
 import java.util.Date;
 
-public class EventBean {
+public class EventBean extends BaseBean{
 	
 	private long eventId;
 	private String eventCode;
 	private String eventName;
 	private Date eventTime;
+	private String status;
 	public long getEventId() {
 		return eventId;
 	}
@@ -38,6 +39,11 @@ public class EventBean {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	private String status;
+	
+	@Override
+	public String getValue() {
+		
+		return eventCode + " " + eventName;
+	}
 
 }

@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
+
 import in.co.rays.proj4.bean.BaseBean;
 import in.co.rays.proj4.bean.UserBean;
 import in.co.rays.proj4.exception.ApplicationException;
@@ -18,47 +20,18 @@ import in.co.rays.proj4.util.DataValidator;
 import in.co.rays.proj4.util.PropertyReader;
 import in.co.rays.proj4.util.ServletUtility;
 
-/**
- * MyProfileCtl handles viewing and updating the logged-in user's profile.
- * 
- * It provides:
- * - Displaying current user profile details
- * - Updating user profile information
- * - Navigation to change password functionality
- * 
- * Flow:
- * - GET request → loads current user profile and forwards to view
- * - POST request → updates profile or redirects to change password page
- * 
- * This controller extends BaseCtl to reuse common functionalities
- * like validation, DTO population, and request handling.
- * 
- * URL Mapping: /MyProfileCtl
- * 
- * @author Nimish
- */
 @WebServlet(name = "MyProfileCtl", urlPatterns = { "/ctl/MyProfileCtl" })
 public class MyProfileCtl extends BaseCtl {
 
-    /** Operation constant for changing password */
+    /** Logger instance */
+    private static final Logger log = Logger.getLogger(MyProfileCtl.class);
+
     public static final String OP_CHANGE_MY_PASSWORD = "Change Password";
 
-    /**
-     * Validates input fields for user profile.
-     * 
-     * Validation rules:
-     * - First name and last name must be valid
-     * - Gender must not be null
-     * - Mobile number must be valid (10 digits)
-     * - Date of birth must not be null
-     * 
-     * Validation is skipped for change password operation.
-     * 
-     * @param request HttpServletRequest object
-     * @return true if validation passes, false otherwise
-     */
     @Override
     protected boolean validate(HttpServletRequest request) {
+
+        log.debug("Validate method started");
 
         boolean pass = true;
 
@@ -105,28 +78,14 @@ public class MyProfileCtl extends BaseCtl {
             pass = false;
         }
 
+        log.debug("Validate method ended with result: " + pass);
         return pass;
     }
 
-    /**
-     * Populates UserBean with profile data from request.
-     * 
-     * Maps:
-     * - id
-     * - login
-     * - firstName
-     * - lastName
-     * - mobileNo
-     * - gender
-     * - date of birth
-     * 
-     * Also sets audit fields.
-     * 
-     * @param request HttpServletRequest object
-     * @return populated UserBean object
-     */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
+
+        log.debug("PopulateBean method started");
 
         UserBean bean = new UserBean();
 
@@ -140,22 +99,14 @@ public class MyProfileCtl extends BaseCtl {
 
         populateDTO(bean, request);
 
+        log.debug("PopulateBean method ended");
         return bean;
     }
 
-    /**
-     * Handles GET request.
-     * 
-     * Retrieves logged-in user from session and loads profile data.
-     * Then forwards to profile view.
-     * 
-     * @param request  HttpServletRequest object
-     * @param response HttpServletResponse object
-     * @throws ServletException
-     * @throws IOException
-     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        log.info("doGet method called");
 
         HttpSession session = request.getSession(true);
         UserBean user = (UserBean) session.getAttribute("user");
@@ -165,33 +116,23 @@ public class MyProfileCtl extends BaseCtl {
 
         if (id > 0) {
             try {
+                log.debug("Fetching user profile id: " + id);
                 UserBean bean = model.findByPk(id);
                 ServletUtility.setBean(bean, request);
             } catch (ApplicationException e) {
-                e.printStackTrace();
+                log.error("Error fetching user profile", e);
                 ServletUtility.handleException(e, request, response);
                 return;
             }
         }
+
         ServletUtility.forward(getView(), request, response);
     }
 
-    /**
-     * Handles POST request for profile operations.
-     * 
-     * Supported operations:
-     * - Save → updates user profile
-     * - Change Password → redirects to change password page
-     * 
-     * Handles success and error scenarios accordingly.
-     * 
-     * @param request  HttpServletRequest object
-     * @param response HttpServletResponse object
-     * @throws ServletException
-     * @throws IOException
-     */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        log.info("doPost method started");
 
         HttpSession session = request.getSession(true);
 
@@ -203,8 +144,12 @@ public class MyProfileCtl extends BaseCtl {
         UserModel model = new UserModel();
 
         if (OP_SAVE.equalsIgnoreCase(op)) {
+
             UserBean bean = (UserBean) populateBean(request);
+
             try {
+                log.debug("Updating user profile id: " + id);
+
                 if (id > 0) {
                     user.setFirstName(bean.getFirstName());
                     user.setLastName(bean.getLastName());
@@ -213,28 +158,32 @@ public class MyProfileCtl extends BaseCtl {
                     user.setDob(bean.getDob());
                     model.update(user);
                 }
+
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setSuccessMessage("Profile has been updated Successfully. ", request);
+
             } catch (DuplicateRecordException e) {
+                log.warn("Duplicate login id while updating profile");
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setErrorMessage("Login id already exists", request);
+
             } catch (ApplicationException e) {
-                e.printStackTrace();
+                log.error("ApplicationException during profile update", e);
                 ServletUtility.handleException(e, request, response);
                 return;
             }
+
         } else if (OP_CHANGE_MY_PASSWORD.equalsIgnoreCase(op)) {
+
+            log.info("Redirecting to change password page");
             ServletUtility.redirect(ORSView.CHANGE_PASSWORD_CTL, request, response);
             return;
         }
+
         ServletUtility.forward(getView(), request, response);
+        log.info("doPost method ended");
     }
 
-    /**
-     * Returns view associated with user profile page.
-     * 
-     * @return view path
-     */
     @Override
     protected String getView() {
         return ORSView.MY_PROFILE_VIEW;

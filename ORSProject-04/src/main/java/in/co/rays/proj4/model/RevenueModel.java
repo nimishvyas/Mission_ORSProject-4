@@ -72,7 +72,7 @@ public class RevenueModel {
 	public void update(RevenueBean bean) throws ApplicationException, DuplicateRecordException {
 		Connection conn = null;
 		RevenueBean existBean = findByExpenseCode(bean.getExpenseCode());
-		if (existBean != null) {
+		if (existBean != null && existBean.getExpenseId() != bean.getExpenseId()) {
 			throw new DuplicateRecordException("Expense Code already exist");
 		}
 		try {
@@ -178,7 +178,7 @@ public class RevenueModel {
 		return bean;
 	}
 
-	public List<RevenueBean> search(RevenueBean bean) throws ApplicationException {
+	public List<RevenueBean> search(RevenueBean bean, int pageNo, int pageSize) throws ApplicationException {
 		Connection conn = null;
 
 		ArrayList<RevenueBean> list = new ArrayList<RevenueBean>();
@@ -195,7 +195,7 @@ public class RevenueModel {
 
 				sql.append(" and code like '" + bean.getExpenseCode() + "%'");
 			}
-			if (bean.getAmount() > 0) {
+			if (bean.getAmount() != null && bean.getAmount() > 0 ) {
 
 				sql.append(" and amount = " + bean.getAmount());
 			}
@@ -208,6 +208,9 @@ public class RevenueModel {
 				sql.append(" and status = '" + bean.getStatus() + "%'");
 			}
 		}
+		if (pageSize > 0) {
+			sql.append(" limit " + (pageNo - 1) * pageSize + "," + pageSize);
+		}
 		try {
 			conn = JDBCDataSource.getConnection();
 			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
@@ -219,8 +222,9 @@ public class RevenueModel {
 				bean.setAmount(rs.getDouble(3));
 				bean.setCategory(rs.getString(4));
 				bean.setStatus(rs.getString(5));
+				list.add(bean);
 			}
-			list.add(bean);
+			
 			rs.close();
 			pstmt.close();
 

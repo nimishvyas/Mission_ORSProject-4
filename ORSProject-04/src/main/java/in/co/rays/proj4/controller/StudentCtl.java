@@ -8,6 +8,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import in.co.rays.proj4.bean.BaseBean;
 import in.co.rays.proj4.bean.StudentBean;
 import in.co.rays.proj4.exception.ApplicationException;
@@ -19,65 +21,31 @@ import in.co.rays.proj4.util.DataValidator;
 import in.co.rays.proj4.util.PropertyReader;
 import in.co.rays.proj4.util.ServletUtility;
 
-/**
- * StudentCtl handles CRUD operations for Student entity.
- * 
- * It provides:
- * - Validation of student input fields
- * - Preloading college list for dropdown
- * - Adding new student records
- * - Updating existing student records
- * - Fetching student details by ID
- * - Navigation control for student views
- * 
- * Flow:
- * - GET request → loads student data (if id present) and forwards to view
- * - POST request → performs save, update, cancel, or reset operations
- * 
- * This controller extends BaseCtl to reuse common functionalities
- * like validation, DTO population, and request handling.
- * 
- * URL Mapping: /StudentCtl
- * 
- * @author Nimish
- */
 @WebServlet(name = "StudentCtl", urlPatterns = { "/ctl/StudentCtl" })
 public class StudentCtl extends BaseCtl {
 
-    /**
-     * Preloads college list for dropdown selection.
-     * 
-     * Fetches all colleges and stores them in request scope.
-     * 
-     * @param request HttpServletRequest object
-     */
+    /** Logger instance */
+    private static final Logger log = Logger.getLogger(StudentCtl.class);
+
     @Override
     protected void preload(HttpServletRequest request) {
+
+        log.debug("Preload method started");
+
         CollegeModel collegeModel = new CollegeModel();
         try {
             List collegeList = collegeModel.list();
             request.setAttribute("collegeList", collegeList);
+            log.debug("College list loaded, size: " + (collegeList != null ? collegeList.size() : 0));
         } catch (ApplicationException e) {
-            e.printStackTrace();
+            log.error("Error while preloading college list", e);
         }
     }
 
-    /**
-     * Validates input fields for student form.
-     * 
-     * Validation rules:
-     * - First name and last name must be valid
-     * - Mobile number must be valid (10 digits)
-     * - Gender must not be null
-     * - Email must be valid
-     * - College must be selected
-     * - Date of birth must be valid
-     * 
-     * @param request HttpServletRequest object
-     * @return true if validation passes, false otherwise
-     */
     @Override
     protected boolean validate(HttpServletRequest request) {
+
+        log.debug("Validate method started");
 
         boolean pass = true;
 
@@ -134,19 +102,14 @@ public class StudentCtl extends BaseCtl {
             pass = false;
         }
 
+        log.debug("Validate method ended with result: " + pass);
         return pass;
     }
 
-    /**
-     * Populates StudentBean with request parameters.
-     * 
-     * Maps all form fields and sets audit information.
-     * 
-     * @param request HttpServletRequest object
-     * @return populated StudentBean object
-     */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
+
+        log.debug("PopulateBean method started");
 
         StudentBean bean = new StudentBean();
 
@@ -161,20 +124,14 @@ public class StudentCtl extends BaseCtl {
 
         populateDTO(bean, request);
 
+        log.debug("PopulateBean method ended");
         return bean;
     }
 
-    /**
-     * Handles GET request.
-     * 
-     * If id is present, fetches student data and sets it in request scope.
-     * Then forwards to student view.
-     * 
-     * @param request  HttpServletRequest object
-     * @param response HttpServletResponse object
-     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        log.info("doGet method called");
 
         long id = DataUtility.getLong(request.getParameter("id"));
 
@@ -182,33 +139,23 @@ public class StudentCtl extends BaseCtl {
 
         if (id > 0) {
             try {
+                log.debug("Fetching student with id: " + id);
                 StudentBean bean = model.findByPk(id);
                 ServletUtility.setBean(bean, request);
             } catch (ApplicationException e) {
-                e.printStackTrace();
+                log.error("Error fetching student by id", e);
                 ServletUtility.handleException(e, request, response);
                 return;
             }
         }
+
         ServletUtility.forward(getView(), request, response);
     }
 
-    /**
-     * Handles POST request for student operations.
-     * 
-     * Supported operations:
-     * - Save → adds new student record
-     * - Update → updates existing student record
-     * - Cancel → redirects to student list
-     * - Reset → reloads form
-     * 
-     * Handles success and error scenarios accordingly.
-     * 
-     * @param request  HttpServletRequest object
-     * @param response HttpServletResponse object
-     */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        log.info("doPost method started");
 
         String op = DataUtility.getString(request.getParameter("operation"));
 
@@ -217,53 +164,70 @@ public class StudentCtl extends BaseCtl {
         long id = DataUtility.getLong(request.getParameter("id"));
 
         if (OP_SAVE.equalsIgnoreCase(op)) {
+
             StudentBean bean = (StudentBean) populateBean(request);
+
             try {
+                log.debug("Adding new student");
                 long pk = model.add(bean);
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setSuccessMessage("Student added successfully", request);
+
             } catch (DuplicateRecordException e) {
+                log.warn("Duplicate email while adding student");
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setErrorMessage("Email already exists", request);
+
             } catch (ApplicationException e) {
-                e.printStackTrace();
+                log.error("ApplicationException during student add", e);
                 ServletUtility.handleException(e, request, response);
                 return;
             }
+
         } else if (OP_UPDATE.equalsIgnoreCase(op)) {
+
             StudentBean bean = (StudentBean) populateBean(request);
+
             try {
+                log.debug("Updating student id: " + id);
+
                 if (id > 0) {
                     model.update(bean);
                 }
+
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setSuccessMessage("Student updated successfully", request);
+
             } catch (DuplicateRecordException e) {
+                log.warn("Duplicate email while updating student");
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setErrorMessage("Email already exists", request);
+
             } catch (ApplicationException e) {
-                e.printStackTrace();
+                log.error("ApplicationException during student update", e);
                 ServletUtility.handleException(e, request, response);
                 return;
             }
+
         } else if (OP_CANCEL.equalsIgnoreCase(op)) {
+
+            log.info("Cancel operation triggered");
             ServletUtility.redirect(ORSView.STUDENT_LIST_CTL, request, response);
             return;
+
         } else if (OP_RESET.equalsIgnoreCase(op)) {
+
+            log.info("Reset operation triggered");
             ServletUtility.redirect(ORSView.STUDENT_CTL, request, response);
             return;
         }
+
         ServletUtility.forward(getView(), request, response);
+        log.info("doPost method ended");
     }
 
-    /**
-     * Returns view associated with student form.
-     * 
-     * @return view path
-     */
     @Override
     protected String getView() {
         return ORSView.STUDENT_VIEW;
     }
-
 }

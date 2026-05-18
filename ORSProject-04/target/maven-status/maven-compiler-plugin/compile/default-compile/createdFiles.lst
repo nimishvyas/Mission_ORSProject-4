@@ -25,6 +25,7 @@ in\co\rays\proj4\test\TestRole.class
 in\co\rays\proj4\exception\RecordNotFoundException.class
 in\co\rays\proj4\model\VersionModel.class
 in\co\rays\proj4\test\TestMail.class
+in\co\rays\proj4\test\testEviction.class
 in\co\rays\proj4\exception\ApplicationException.class
 in\co\rays\proj4\exception\DuplicateRecordException.class
 in\co\rays\proj4\test\TestFaculty.class
@@ -38,11 +39,14 @@ in\co\rays\proj4\test\TestCourse.class
 in\co\rays\proj4\controller\CollegeListCtl.class
 in\co\rays\proj4\util\EmailUtility.class
 in\co\rays\proj4\controller\StudentListCtl.class
+in\co\rays\proj4\controller\VersionCtl.class
+in\co\rays\proj4\controller\RevenueListCtl.class
 in\co\rays\proj4\controller\MyProfileCtl.class
 in\co\rays\proj4\model\UserModel.class
 in\co\rays\proj4\test\testStudent.class
 in\co\rays\proj4\bean\RevenueBean.class
 in\co\rays\proj4\controller\FrontController.class
+in\co\rays\proj4\bean\CacheEvictionBean.class
 in\co\rays\proj4\model\MarksheetModel.class
 in\co\rays\proj4\model\CollegeModel.class
 in\co\rays\proj4\bean\EventBean.class
@@ -52,7 +56,9 @@ in\co\rays\proj4\test\TestSubject.class
 in\co\rays\proj4\bean\StudentBean.class
 in\co\rays\proj4\model\FacultyModel.class
 in\co\rays\proj4\controller\MarksheetMeritListCtl.class
+in\co\rays\proj4\controller\RevenueCtl.class
 in\co\rays\proj4\controller\RoleListCtl.class
+in\co\rays\proj4\test\testEvent.class
 in\co\rays\proj4\controller\RoleCtl.class
 in\co\rays\proj4\controller\StudentCtl.class
 in\co\rays\proj4\bean\UserBean.class
@@ -75,8 +81,12 @@ in\co\rays\proj4\controller\UserRegistrationCtl.class
 in\co\rays\proj4\controller\CourseListCtl.class
 in\co\rays\proj4\model\SubjectModel.class
 in\co\rays\proj4\bean\TimetableBean.class
+in\co\rays\proj4\model\CacheEvictionModel.class
 in\co\rays\proj4\bean\BaseBean.class
+in\co\rays\proj4\controller\VersionListCtl.class
+in\co\rays\proj4\controller\EventCtl.class
 in\co\rays\proj4\test\testUser.class
 in\co\rays\proj4\util\EmailMessage.class
+in\co\rays\proj4\controller\EventListCtl.class
 in\co\rays\proj4\controller\FacultyCtl.class
 in\co\rays\proj4\bean\DropDownListBean.class

@@ -8,6 +8,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import in.co.rays.proj4.bean.BaseBean;
 import in.co.rays.proj4.bean.CourseBean;
 import in.co.rays.proj4.exception.ApplicationException;
@@ -41,6 +43,9 @@ import in.co.rays.proj4.util.ServletUtility;
 @WebServlet(name = "CourseListCtl", urlPatterns = { "/ctl/CourseListCtl" })
 public class CourseListCtl extends BaseCtl {
 
+    /** Log4j Logger */
+    private static final Logger log = Logger.getLogger(CourseListCtl.class);
+
     /**
      * Preloads course list for dropdown or reference usage.
      * 
@@ -50,12 +55,14 @@ public class CourseListCtl extends BaseCtl {
      */
     @Override
     protected void preload(HttpServletRequest request) {
+        log.debug("CourseListCtl preload() called");
 
         CourseModel courseModel = new CourseModel();
 
         try {
             List courList = courseModel.list();
             request.setAttribute("courseList", courList);
+            log.info("Preloaded course list, size=" + courList.size());
         } catch (ApplicationException e) {
             e.printStackTrace();
         }
@@ -77,6 +84,7 @@ public class CourseListCtl extends BaseCtl {
      */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
+        log.debug("CourseListCtl populateBean() called");
 
         CourseBean bean = new CourseBean();
         bean.setId(DataUtility.getLong(request.getParameter("id")));
@@ -102,6 +110,8 @@ public class CourseListCtl extends BaseCtl {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        log.info("CourseListCtl doGet() started");
+
         int pageNo = 1;
         int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
 
@@ -123,7 +133,9 @@ public class CourseListCtl extends BaseCtl {
             request.setAttribute("nextListSize", next.size());
 
             ServletUtility.forward(getView(), request, response);
+            log.info("doGet() forwarded to view: " + getView());
         } catch (ApplicationException e) {
+            log.error("ApplicationException in doGet()", e);
             e.printStackTrace();
             ServletUtility.handleException(e, request, response);
             return;
@@ -151,6 +163,8 @@ public class CourseListCtl extends BaseCtl {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        log.info("CourseListCtl doPost() started");
+
         List list = null;
         List next = null;
 
@@ -172,34 +186,43 @@ public class CourseListCtl extends BaseCtl {
 
                 if (OP_SEARCH.equalsIgnoreCase(op)) {
                     pageNo = 1;
+                    log.debug("Operation: SEARCH");
                 } else if (OP_NEXT.equalsIgnoreCase(op)) {
                     pageNo++;
+                    log.debug("Operation: NEXT, pageNo=" + pageNo);
                 } else if (OP_PREVIOUS.equalsIgnoreCase(op) && pageNo > 1) {
                     pageNo--;
+                    log.debug("Operation: PREVIOUS, pageNo=" + pageNo);
                 }
 
             } else if (OP_NEW.equalsIgnoreCase(op)) {
+                log.info("Operation: NEW, redirecting to COURSE_CTL");
                 ServletUtility.redirect(ORSView.COURSE_CTL, request, response);
                 return;
 
             } else if (OP_DELETE.equalsIgnoreCase(op)) {
+                log.debug("Operation: DELETE");
                 pageNo = 1;
                 if (ids != null && ids.length > 0) {
                     CourseBean deletebean = new CourseBean();
                     for (String id : ids) {
                         deletebean.setId(DataUtility.getInt(id));
                         model.delete(deletebean);
+                        log.info("Course deleted successfully, id=" + id);
                         ServletUtility.setSuccessMessage("Course deleted successfully", request);
                     }
                 } else {
                     ServletUtility.setErrorMessage("Select at least one record", request);
+                    log.warn("DELETE attempted with no records selected");
                 }
 
             } else if (OP_RESET.equalsIgnoreCase(op)) {
+                log.info("Operation: RESET, redirecting to COLLEGE_LIST_CTL");
                 ServletUtility.redirect(ORSView.COLLEGE_LIST_CTL, request, response);
                 return;
 
             } else if (OP_BACK.equalsIgnoreCase(op)) {
+                log.info("Operation: BACK, redirecting to COLLEGE_LIST_CTL");
                 ServletUtility.redirect(ORSView.COLLEGE_LIST_CTL, request, response);
                 return;
             }
@@ -218,8 +241,10 @@ public class CourseListCtl extends BaseCtl {
             request.setAttribute("nextListSize", next.size());
 
             ServletUtility.forward(getView(), request, response);
+            log.info("doPost() forwarded to view: " + getView());
 
         } catch (ApplicationException e) {
+            log.error("ApplicationException in doPost()", e);
             e.printStackTrace();
             ServletUtility.handleException(e, request, response);
             return;
@@ -234,7 +259,7 @@ public class CourseListCtl extends BaseCtl {
      */
     @Override
     protected String getView() {
-
+        log.debug("Returning CourseList view page");
         return ORSView.COURSE_LIST_VIEW;
     }
 

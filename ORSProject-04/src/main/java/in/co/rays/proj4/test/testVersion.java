@@ -11,12 +11,12 @@ public class testVersion {
 	 public static void main(String[] args) throws Exception {
 
 
-	        testAdd();
+	       // testAdd();
 //	        testFindByPk();
 //	        testFindByName();
 //	        testUpdate();
 //	        testSearch();
-//	        testDelete();
+	      //  testDelete();
 	    }
 
 	   
@@ -58,7 +58,7 @@ public class testVersion {
 
 	        VersionModel model = new VersionModel();
 
-	        VersionBean bean = model.findByname("Version 1");
+	        VersionBean bean = model.findByCode("Version 1");
 
 	        if (bean != null) {
 	            System.out.println(bean.getVersionId());
@@ -108,7 +108,7 @@ public class testVersion {
 
 	        bean.setVersionName("Version");
 
-	        List<VersionBean> list = model.search(bean);
+	        List<VersionBean> list = model.search(bean, 0, 0);
 
 	        for (VersionBean b : list) {
 	            System.out.println(b.getVersionId());

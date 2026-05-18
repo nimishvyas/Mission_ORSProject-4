@@ -7,6 +7,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import in.co.rays.proj4.util.ServletUtility;
 
 /**
@@ -30,6 +32,9 @@ import in.co.rays.proj4.util.ServletUtility;
 @WebServlet("/ctl/ErrorCtl")
 public class ErrorCtl extends BaseCtl {
 
+    /** Log4j Logger */
+    private static final Logger log = Logger.getLogger(ErrorCtl.class);
+
     /**
      * Handles GET request.
      * 
@@ -42,7 +47,9 @@ public class ErrorCtl extends BaseCtl {
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        log.info("ErrorCtl doGet() started");
         ServletUtility.forward(getView(), request, response);
+        log.info("doGet() forwarded to view: " + getView());
     }
 
     /**
@@ -57,8 +64,9 @@ public class ErrorCtl extends BaseCtl {
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        log.info("ErrorCtl doPost() started");
         ServletUtility.forward(getView(), request, response);
+        log.info("doPost() forwarded to view: " + getView());
     }
 
     /**
@@ -68,6 +76,7 @@ public class ErrorCtl extends BaseCtl {
      */
     @Override
     protected String getView() {
+        log.debug("Returning Error view page");
         return ORSView.ERROR_VIEW;
     }
 }

@@ -28,7 +28,7 @@ public class testRevenueModel {
         RevenueBean bean = new RevenueBean();
 
         bean.setExpenseCode("EXP001");
-        bean.setAmount(5000);
+        bean.setAmount((double) 5000);
         bean.setCategory("IT");
         bean.setStatus("Active");
 
@@ -77,7 +77,7 @@ public class testRevenueModel {
 
         bean.setExpenseId(1);
         bean.setExpenseCode("EXP001-UPD");
-        bean.setAmount(8000);
+        bean.setAmount((double) 8000);
         bean.setCategory("Finance");
         bean.setStatus("Inactive");
 
@@ -107,7 +107,7 @@ public class testRevenueModel {
         RevenueBean bean = new RevenueBean();
         bean.setExpenseCode("EXP");
 
-        List<RevenueBean> list = model.search(bean);
+        List<RevenueBean> list = model.search(bean, 0, 0);
 
         for (RevenueBean b : list) {
             System.out.println(b.getExpenseId());

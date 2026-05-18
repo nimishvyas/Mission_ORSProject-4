@@ -8,6 +8,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import in.co.rays.proj4.bean.BaseBean;
 import in.co.rays.proj4.bean.TimetableBean;
 import in.co.rays.proj4.exception.ApplicationException;
@@ -20,44 +22,16 @@ import in.co.rays.proj4.util.DataValidator;
 import in.co.rays.proj4.util.PropertyReader;
 import in.co.rays.proj4.util.ServletUtility;
 
-/**
- * TimetableCtl handles CRUD operations for Timetable entity.
- * 
- * It provides:
- * - Validation of timetable input fields
- * - Preloading subject and course lists for dropdowns
- * - Adding new timetable records with duplicate checks
- * - Updating existing timetable records with validation
- * - Fetching timetable details by ID
- * - Navigation control for timetable views
- * 
- * Flow:
- * - GET request → loads timetable data (if id present) and forwards to view
- * - POST request → performs save, update, cancel, or reset operations
- * 
- * This controller extends BaseCtl to reuse common functionalities
- * like validation, DTO population, and request handling.
- * 
- * URL Mapping: /TimetableCtl
- * 
- * @author Nimish
- */
 @WebServlet(name = "TimetableCtl", urlPatterns = { "/ctl/TimetableCtl" })
 public class TimetableCtl extends BaseCtl {
 
-    /**
-     * Preloads subject and course lists for dropdown selection.
-     * 
-     * Fetches:
-     * - Subject list
-     * - Course list
-     * 
-     * Stores them in request scope.
-     * 
-     * @param request HttpServletRequest object
-     */
+    /** Logger instance */
+    private static final Logger log = Logger.getLogger(TimetableCtl.class);
+
     @Override
     protected void preload(HttpServletRequest request) {
+
+        log.debug("Preload method started");
 
         SubjectModel subjectModel = new SubjectModel();
         CourseModel courseModel = new CourseModel();
@@ -69,26 +43,17 @@ public class TimetableCtl extends BaseCtl {
             List courseList = courseModel.list();
             request.setAttribute("courseList", courseList);
 
+            log.debug("Subject & Course lists loaded");
+
         } catch (ApplicationException e) {
-            e.printStackTrace();
+            log.error("Error while preloading subject/course lists", e);
         }
     }
 
-    /**
-     * Validates input fields for timetable form.
-     * 
-     * Validation rules:
-     * - Semester must not be null
-     * - Exam date must be valid and not Sunday
-     * - Exam time must not be null
-     * - Description must not be null
-     * - Course and subject must be selected
-     * 
-     * @param request HttpServletRequest object
-     * @return true if validation passes, false otherwise
-     */
     @Override
     protected boolean validate(HttpServletRequest request) {
+
+        log.debug("Validate method started");
 
         boolean pass = true;
 
@@ -128,28 +93,14 @@ public class TimetableCtl extends BaseCtl {
             pass = false;
         }
 
+        log.debug("Validate method ended with result: " + pass);
         return pass;
     }
 
-    /**
-     * Populates TimetableBean with request parameters.
-     * 
-     * Maps:
-     * - id
-     * - semester
-     * - description
-     * - examTime
-     * - examDate
-     * - courseId
-     * - subjectId
-     * 
-     * Also sets audit fields.
-     * 
-     * @param request HttpServletRequest object
-     * @return populated TimetableBean object
-     */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
+
+        log.debug("PopulateBean method started");
 
         TimetableBean bean = new TimetableBean();
 
@@ -163,20 +114,14 @@ public class TimetableCtl extends BaseCtl {
 
         populateDTO(bean, request);
 
+        log.debug("PopulateBean method ended");
         return bean;
     }
 
-    /**
-     * Handles GET request.
-     * 
-     * If id is present, fetches timetable data and sets it in request scope.
-     * Then forwards to timetable view.
-     * 
-     * @param request  HttpServletRequest object
-     * @param response HttpServletResponse object
-     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        log.info("doGet method called");
 
         long id = DataUtility.getLong(request.getParameter("id"));
 
@@ -184,33 +129,23 @@ public class TimetableCtl extends BaseCtl {
 
         if (id > 0) {
             try {
+                log.debug("Fetching timetable id: " + id);
                 TimetableBean bean = model.findByPk(id);
                 ServletUtility.setBean(bean, request);
             } catch (ApplicationException e) {
-                e.printStackTrace();
+                log.error("Error fetching timetable by id", e);
                 ServletUtility.handleException(e, request, response);
                 return;
             }
         }
+
         ServletUtility.forward(getView(), request, response);
     }
 
-    /**
-     * Handles POST request for timetable operations.
-     * 
-     * Supported operations:
-     * - Save → adds new timetable record with duplicate checks
-     * - Update → updates existing timetable record with validation
-     * - Cancel → redirects to timetable list
-     * - Reset → reloads form
-     * 
-     * Performs multiple duplicate checks before saving/updating.
-     * 
-     * @param request  HttpServletRequest object
-     * @param response HttpServletResponse object
-     */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        log.info("doPost method started");
 
         String op = DataUtility.getString(request.getParameter("operation"));
 
@@ -227,25 +162,37 @@ public class TimetableCtl extends BaseCtl {
             TimetableBean bean3;
 
             try {
+                log.debug("Checking duplicates before saving timetable");
+
                 bean1 = model.checkByCourseName(bean.getCourseId(), bean.getExamDate());
                 bean2 = model.checkBySubjectName(bean.getCourseId(), bean.getSubjectId(), bean.getExamDate());
                 bean3 = model.checkBySemester(bean.getCourseId(), bean.getSubjectId(), bean.getSemester(),
                         bean.getExamDate());
 
                 if (bean1 == null && bean2 == null && bean3 == null) {
+
+                    log.debug("No duplicates found, saving timetable");
+
                     long pk = model.add(bean);
                     ServletUtility.setBean(bean, request);
                     ServletUtility.setSuccessMessage("Timetable added successfully", request);
+
                 } else {
+
+                    log.warn("Duplicate timetable detected");
+
                     bean = (TimetableBean) populateBean(request);
                     ServletUtility.setBean(bean, request);
                     ServletUtility.setErrorMessage("Timetable already exist!", request);
                 }
+
             } catch (DuplicateRecordException e) {
+                log.warn("DuplicateRecordException while saving timetable");
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setErrorMessage("Timetable already exist!", request);
+
             } catch (ApplicationException e) {
-                e.printStackTrace();
+                log.error("ApplicationException during timetable save", e);
                 ServletUtility.handleException(e, request, response);
                 return;
             }
@@ -257,41 +204,56 @@ public class TimetableCtl extends BaseCtl {
             TimetableBean bean4;
 
             try {
+                log.debug("Checking duplicates before updating timetable id: " + id);
+
                 bean4 = model.checkByExamTime(bean.getCourseId(), bean.getSubjectId(), bean.getSemester(),
                         bean.getExamDate(), bean.getExamTime(), bean.getDescription());
 
                 if (id > 0 && bean4 == null) {
+
+                    log.debug("No duplicates found, updating timetable");
+
                     model.update(bean);
                     ServletUtility.setBean(bean, request);
                     ServletUtility.setSuccessMessage("Timetable updated successfully", request);
+
                 } else {
+
+                    log.warn("Duplicate timetable detected during update");
+
                     bean = (TimetableBean) populateBean(request);
                     ServletUtility.setBean(bean, request);
                     ServletUtility.setErrorMessage("Timetable already exist!", request);
                 }
+
             } catch (DuplicateRecordException e) {
+                log.warn("DuplicateRecordException while updating timetable");
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setErrorMessage("Timetable already exist!", request);
+
             } catch (ApplicationException e) {
-                e.printStackTrace();
+                log.error("ApplicationException during timetable update", e);
                 ServletUtility.handleException(e, request, response);
                 return;
             }
+
         } else if (OP_CANCEL.equalsIgnoreCase(op)) {
+
+            log.info("Cancel operation triggered");
             ServletUtility.redirect(ORSView.TIMETABLE_LIST_CTL, request, response);
             return;
+
         } else if (OP_RESET.equalsIgnoreCase(op)) {
+
+            log.info("Reset operation triggered");
             ServletUtility.redirect(ORSView.TIMETABLE_CTL, request, response);
             return;
         }
+
         ServletUtility.forward(getView(), request, response);
+        log.info("doPost method ended");
     }
 
-    /**
-     * Returns view associated with timetable form.
-     * 
-     * @return view path
-     */
     @Override
     protected String getView() {
         return ORSView.TIMETABLE_VIEW;

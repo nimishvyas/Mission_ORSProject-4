@@ -8,6 +8,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import in.co.rays.proj4.bean.BaseBean;
 import in.co.rays.proj4.bean.UserBean;
 import in.co.rays.proj4.exception.ApplicationException;
@@ -43,6 +45,9 @@ import in.co.rays.proj4.util.ServletUtility;
 @WebServlet(name = "UserListCtl", urlPatterns = { "/ctl/UserListCtl" })
 public class UserListCtl extends BaseCtl {
 
+    /** Log4j Logger */
+    private static final Logger log = Logger.getLogger(UserListCtl.class);
+
     /**
      * Preloads role list for dropdown/filter.
      * 
@@ -52,10 +57,13 @@ public class UserListCtl extends BaseCtl {
      */
     @Override
     protected void preload(HttpServletRequest request) {
+        log.debug("UserListCtl preload() called");
+
         RoleModel roleModel = new RoleModel();
         try {
             List roleList = roleModel.list();
             request.setAttribute("roleList", roleList);
+            log.info("Preloaded role list, size=" + roleList.size());
         } catch (ApplicationException e) {
             e.printStackTrace();
         }
@@ -74,6 +82,7 @@ public class UserListCtl extends BaseCtl {
      */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
+        log.debug("UserListCtl populateBean() called");
 
         UserBean bean = new UserBean();
 
@@ -101,6 +110,8 @@ public class UserListCtl extends BaseCtl {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        log.info("UserListCtl doGet() started");
+
         int pageNo = 1;
         int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
 
@@ -122,8 +133,10 @@ public class UserListCtl extends BaseCtl {
             request.setAttribute("nextListSize", next.size());
 
             ServletUtility.forward(getView(), request, response);
+            log.info("doGet() forwarded to view: " + getView());
 
         } catch (ApplicationException e) {
+            log.error("ApplicationException in doGet()", e);
             e.printStackTrace();
             return;
         }
@@ -150,6 +163,8 @@ public class UserListCtl extends BaseCtl {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        log.info("UserListCtl doPost() started");
+
         List list = null;
         List next = null;
 
@@ -171,34 +186,43 @@ public class UserListCtl extends BaseCtl {
 
                 if (OP_SEARCH.equalsIgnoreCase(op)) {
                     pageNo = 1;
+                    log.debug("Operation: SEARCH");
                 } else if (OP_NEXT.equalsIgnoreCase(op)) {
                     pageNo++;
+                    log.debug("Operation: NEXT, pageNo=" + pageNo);
                 } else if (OP_PREVIOUS.equalsIgnoreCase(op)) {
                     pageNo--;
+                    log.debug("Operation: PREVIOUS, pageNo=" + pageNo);
                 }
 
             } else if (OP_NEW.equalsIgnoreCase(op)) {
+                log.info("Operation: NEW, redirecting to USER_CTL");
                 ServletUtility.redirect(ORSView.USER_CTL, request, response);
                 return;
 
             } else if (OP_DELETE.equalsIgnoreCase(op)) {
+                log.debug("Operation: DELETE");
                 pageNo = 1;
                 if (ids != null && ids.length > 0) {
                     UserBean deleteBean = new UserBean();
                     for (String id : ids) {
                         deleteBean.setId(DataUtility.getInt(id));
                         model.delete(deleteBean);
+                        log.info("User deleted successfully, id=" + id);
                         ServletUtility.setSuccessMessage("User deleted successfully", request);
                     }
                 } else {
                     ServletUtility.setErrorMessage("Select at least one record", request);
+                    log.warn("DELETE attempted with no records selected");
                 }
 
             } else if (OP_RESET.equalsIgnoreCase(op)) {
+                log.info("Operation: RESET, redirecting to USER_LIST_CTL");
                 ServletUtility.redirect(ORSView.USER_LIST_CTL, request, response);
                 return;
 
             } else if (OP_BACK.equalsIgnoreCase(op)) {
+                log.info("Operation: BACK, redirecting to USER_LIST_CTL");
                 ServletUtility.redirect(ORSView.USER_LIST_CTL, request, response);
                 return;
             }
@@ -217,8 +241,10 @@ public class UserListCtl extends BaseCtl {
             request.setAttribute("nextListSize", next.size());
 
             ServletUtility.forward(getView(), request, response);
+            log.info("doPost() forwarded to view: " + getView());
 
         } catch (ApplicationException e) {
+            log.error("ApplicationException in doPost()", e);
             e.printStackTrace();
             return;
         }
@@ -231,6 +257,7 @@ public class UserListCtl extends BaseCtl {
      */
     @Override
     protected String getView() {
+        log.debug("Returning UserList view page");
         return ORSView.USER_LIST_VIEW;
     }
 }

@@ -21,7 +21,7 @@
 		scope="request"></jsp:useBean>
 
 	<div align="center">
-		<h1 align="left" style="margin-bottom: -15; color: navy;">User
+		<h1 align="center" style="margin-bottom: -15; color: navy;">User
 			List</h1>
 		<div style="height: 15px; margin-bottom: 12px">
 			<h3>
@@ -53,7 +53,8 @@
 					<td align="center"><label><b>First Name : </b></label> <input
 						type="text" name="firstName" placeholder="Enter first name"
 						value="<%=ServletUtility.getParameter("firstName", request)%>">&emsp;
-
+						<label><b>DOB :</b></label> <input type="text" id="udate" name="dob" placeholder="Select Date of Birth"
+						value="<%=ServletUtility.getParameter("dob", request)%>">&emsp;
 						<label><b>Login Id : </b></label> <input type="text" name="login"
 						placeholder="Enter email id"
 						value="<%=ServletUtility.getParameter("login", request)%>">&emsp;

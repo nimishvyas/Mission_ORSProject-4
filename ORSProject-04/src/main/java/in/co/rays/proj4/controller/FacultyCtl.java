@@ -8,6 +8,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import in.co.rays.proj4.bean.BaseBean;
 import in.co.rays.proj4.bean.FacultyBean;
 import in.co.rays.proj4.exception.ApplicationException;
@@ -46,6 +48,9 @@ import in.co.rays.proj4.util.ServletUtility;
 @WebServlet(name = "FacultyCtl", urlPatterns = { "/ctl/FacultyCtl" })
 public class FacultyCtl extends BaseCtl {
 
+    /** Log4j Logger */
+    private static final Logger log = Logger.getLogger(FacultyCtl.class);
+
     /**
      * Preloads required reference data for dropdowns.
      * 
@@ -60,6 +65,7 @@ public class FacultyCtl extends BaseCtl {
      */
     @Override
     protected void preload(HttpServletRequest request) {
+        log.debug("FacultyCtl preload() called");
 
         CollegeModel collegeModel = new CollegeModel();
         SubjectModel subjectModel = new SubjectModel();
@@ -74,6 +80,10 @@ public class FacultyCtl extends BaseCtl {
 
             List courseList = courseModel.list();
             request.setAttribute("courseList", courseList);
+
+            log.info("Preloaded collegeList size=" + collegeList.size()
+                    + ", subjectList size=" + subjectList.size()
+                    + ", courseList size=" + courseList.size());
 
         } catch (ApplicationException e) {
             e.printStackTrace();
@@ -96,6 +106,7 @@ public class FacultyCtl extends BaseCtl {
      */
     @Override
     protected boolean validate(HttpServletRequest request) {
+        log.debug("FacultyCtl validate() called");
 
         boolean pass = true;
 
@@ -162,6 +173,7 @@ public class FacultyCtl extends BaseCtl {
             pass = false;
         }
 
+        log.debug("Validation result: " + pass);
         return pass;
     }
 
@@ -175,6 +187,7 @@ public class FacultyCtl extends BaseCtl {
      */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
+        log.debug("FacultyCtl populateBean() called");
 
         FacultyBean bean = new FacultyBean();
 
@@ -206,6 +219,8 @@ public class FacultyCtl extends BaseCtl {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        log.info("FacultyCtl doGet() started");
+
         long id = DataUtility.getLong(request.getParameter("id"));
 
         FacultyModel model = new FacultyModel();
@@ -214,13 +229,16 @@ public class FacultyCtl extends BaseCtl {
             try {
                 FacultyBean bean = model.findByPk(id);
                 ServletUtility.setBean(bean, request);
+                log.info("Loaded FacultyBean for id=" + id);
             } catch (ApplicationException e) {
+                log.error("ApplicationException in doGet()", e);
                 e.printStackTrace();
                 ServletUtility.handleException(e, request, response);
                 return;
             }
         }
         ServletUtility.forward(getView(), request, response);
+        log.info("doGet() forwarded to view: " + getView());
     }
 
     /**
@@ -240,6 +258,8 @@ public class FacultyCtl extends BaseCtl {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        log.info("FacultyCtl doPost() started");
+
         String op = DataUtility.getString(request.getParameter("operation"));
 
         FacultyModel model = new FacultyModel();
@@ -247,43 +267,54 @@ public class FacultyCtl extends BaseCtl {
         long id = DataUtility.getLong(request.getParameter("id"));
 
         if (OP_SAVE.equalsIgnoreCase(op)) {
+            log.debug("Operation: SAVE");
             FacultyBean bean = (FacultyBean) populateBean(request);
             try {
                 long pk = model.add(bean);
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setSuccessMessage("Faculty added successfully", request);
+                log.info("Faculty added successfully, pk=" + pk);
             } catch (DuplicateRecordException e) {
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setErrorMessage("Email already exists", request);
+                log.warn("Duplicate email during save: " + bean.getEmail());
             } catch (ApplicationException e) {
+                log.error("ApplicationException in doPost() SAVE", e);
                 e.printStackTrace();
                 ServletUtility.handleException(e, request, response);
                 return;
             }
         } else if (OP_UPDATE.equalsIgnoreCase(op)) {
+            log.debug("Operation: UPDATE");
             FacultyBean bean = (FacultyBean) populateBean(request);
             try {
                 if (id > 0) {
                     model.update(bean);
+                    log.info("Faculty updated successfully, id=" + id);
                 }
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setSuccessMessage("Faculty updated successfully", request);
             } catch (DuplicateRecordException e) {
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setErrorMessage("Email already exists", request);
+                log.warn("Duplicate email during update: " + bean.getEmail());
             } catch (ApplicationException e) {
+                log.error("ApplicationException in doPost() UPDATE", e);
                 e.printStackTrace();
                 ServletUtility.handleException(e, request, response);
                 return;
             }
         } else if (OP_CANCEL.equalsIgnoreCase(op)) {
+            log.info("Operation: CANCEL, redirecting to FACULTY_LIST_CTL");
             ServletUtility.redirect(ORSView.FACULTY_LIST_CTL, request, response);
             return;
         } else if (OP_RESET.equalsIgnoreCase(op)) {
+            log.info("Operation: RESET, redirecting to FACULTY_CTL");
             ServletUtility.redirect(ORSView.FACULTY_CTL, request, response);
             return;
         }
         ServletUtility.forward(getView(), request, response);
+        log.info("doPost() forwarded to view: " + getView());
     }
 
     /**
@@ -293,6 +324,7 @@ public class FacultyCtl extends BaseCtl {
      */
     @Override
     protected String getView() {
+        log.debug("Returning Faculty view page");
         return ORSView.FACULTY_VIEW;
     }
 }

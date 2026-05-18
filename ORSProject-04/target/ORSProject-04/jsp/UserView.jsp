@@ -11,10 +11,10 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>Insert title here</title>
+<title>User View</title>
 </head>
 <body>
-:>
+
 	<form action="<%=ORSView.USER_CTL%>" method = "post">
 		
 		<%@ include file = "Header.jsp" %>
@@ -89,9 +89,9 @@
 					<td style="position: fixed;"><font color="red"> <%=ServletUtility.getErrorMessage("confirmPassword", request)%></font></td>
 				</tr>
 				<tr>
-					<th align="left">Date of Birth<span style="width: 98%"
-						style="color: red">*</span></th>
-					<td><input type="text" id="udate" name="dob" placeholder="Select Date of Birth"
+					<th align="left">Date of Birth<span style="color: red">*</span></th>
+					<td><input type="text" id="udate" name="dob"
+						placeholder="Select Date of Birth"
 						value="<%=DataUtility.getDateString(bean.getDob())%>"></td>
 					<td style="position: fixed;"><font color="red"> <%=ServletUtility.getErrorMessage("dob", request)%></font></td>
 				</tr>

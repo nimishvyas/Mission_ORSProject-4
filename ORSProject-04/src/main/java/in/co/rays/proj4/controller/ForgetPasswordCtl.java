@@ -7,6 +7,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import in.co.rays.proj4.bean.BaseBean;
 import in.co.rays.proj4.bean.UserBean;
 import in.co.rays.proj4.exception.ApplicationException;
@@ -39,6 +41,9 @@ import in.co.rays.proj4.util.ServletUtility;
 @WebServlet(name = "ForgetPasswordCtl", urlPatterns = { "/ForgetPasswordCtl" })
 public class ForgetPasswordCtl extends BaseCtl {
 
+    /** Log4j Logger */
+    private static final Logger log = Logger.getLogger(ForgetPasswordCtl.class);
+
     /**
      * Validates login (email) input.
      * 
@@ -51,6 +56,7 @@ public class ForgetPasswordCtl extends BaseCtl {
      */
     @Override
     protected boolean validate(HttpServletRequest request) {
+        log.debug("ForgetPasswordCtl validate() called");
 
         boolean pass = true;
 
@@ -62,6 +68,7 @@ public class ForgetPasswordCtl extends BaseCtl {
             pass = false;
         }
 
+        log.debug("Validation result: " + pass);
         return pass;
     }
 
@@ -73,6 +80,7 @@ public class ForgetPasswordCtl extends BaseCtl {
      */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
+        log.debug("ForgetPasswordCtl populateBean() called");
 
         UserBean bean = new UserBean();
 
@@ -93,7 +101,9 @@ public class ForgetPasswordCtl extends BaseCtl {
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        log.info("ForgetPasswordCtl doGet() started");
         ServletUtility.forward(getView(), request, response);
+        log.info("doGet() forwarded to view: " + getView());
     }
 
     /**
@@ -112,6 +122,8 @@ public class ForgetPasswordCtl extends BaseCtl {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        log.info("ForgetPasswordCtl doPost() started");
+
         String op = DataUtility.getString(request.getParameter("operation"));
 
         UserBean bean = (UserBean) populateBean(request);
@@ -119,18 +131,23 @@ public class ForgetPasswordCtl extends BaseCtl {
         UserModel model = new UserModel();
 
         if (OP_GO.equalsIgnoreCase(op)) {
+            log.debug("Operation: GO");
             try {
                 boolean flag = model.forgetPassword(bean.getLogin());
                 if (flag) {
                     ServletUtility.setSuccessMessage("Password has been sent to your email id", request);
+                    log.info("Password recovery email sent to: " + bean.getLogin());
                 }
             } catch (RecordNotFoundException e) {
                 ServletUtility.setErrorMessage(e.getMessage(), request);
+                log.warn("Login not found during password recovery: " + bean.getLogin());
             } catch (ApplicationException e) {
+                log.error("ApplicationException in doPost() GO", e);
                 e.printStackTrace();
                 ServletUtility.setErrorMessage("Please check your internet connection..!!", request);
             }
             ServletUtility.forward(getView(), request, response);
+            log.info("doPost() forwarded to view: " + getView());
         }
     }
 
@@ -141,6 +158,7 @@ public class ForgetPasswordCtl extends BaseCtl {
      */
     @Override
     protected String getView() {
+        log.debug("Returning ForgetPassword view page");
         return ORSView.FORGET_PASSWORD_VIEW;
     }
 }

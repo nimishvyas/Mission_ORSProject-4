@@ -8,6 +8,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import in.co.rays.proj4.bean.BaseBean;
 import in.co.rays.proj4.bean.SubjectBean;
 import in.co.rays.proj4.exception.ApplicationException;
@@ -17,45 +19,16 @@ import in.co.rays.proj4.util.DataUtility;
 import in.co.rays.proj4.util.PropertyReader;
 import in.co.rays.proj4.util.ServletUtility;
 
-/**
- * SubjectListCtl handles listing, searching, pagination,
- * and deletion of Subject records.
- * 
- * It provides:
- * - Preloading subject and course lists for dropdown/filter
- * - Displaying list of subjects
- * - Searching subjects based on criteria
- * - Pagination (Next/Previous)
- * - Deleting selected subject records
- * - Navigation to subject form
- * 
- * Flow:
- * - GET request → loads initial subject list with default pagination
- * - POST request → handles search, pagination, delete, reset, and navigation operations
- * 
- * This controller extends BaseCtl to reuse common functionalities
- * like DTO population and request handling.
- * 
- * URL Mapping: /SubjectListCtl
- * 
- * @author Nimish
- */
 @WebServlet(name = "SubjectListCtl", urlPatterns = { "/ctl/SubjectListCtl" })
 public class SubjectListCtl extends BaseCtl {
 
-    /**
-     * Preloads subject and course lists for dropdowns or filters.
-     * 
-     * Fetches:
-     * - Subject list
-     * - Course list
-     * 
-     * Stores them in request scope.
-     * 
-     * @param request HttpServletRequest object
-     */
+    /** Logger instance */
+    private static final Logger log = Logger.getLogger(SubjectListCtl.class);
+
     @Override
     protected void preload(HttpServletRequest request) {
+
+        log.debug("Preload method started");
 
         SubjectModel subjectModel = new SubjectModel();
         CourseModel courseModel = new CourseModel();
@@ -67,26 +40,17 @@ public class SubjectListCtl extends BaseCtl {
             List courseList = courseModel.list();
             request.setAttribute("courseList", courseList);
 
+            log.debug("Subject & Course lists loaded");
+
         } catch (ApplicationException e) {
-            e.printStackTrace();
+            log.error("Error while preloading subject/course lists", e);
         }
     }
 
-    /**
-     * Populates SubjectBean with search criteria from request.
-     * 
-     * Maps:
-     * - name
-     * - courseName
-     * - description
-     * - courseId
-     * - subjectId (as id)
-     * 
-     * @param request HttpServletRequest object
-     * @return populated SubjectBean object
-     */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
+
+        log.debug("PopulateBean method started");
 
         SubjectBean bean = new SubjectBean();
 
@@ -96,22 +60,14 @@ public class SubjectListCtl extends BaseCtl {
         bean.setCourseId(DataUtility.getLong(request.getParameter("courseId")));
         bean.setId(DataUtility.getLong(request.getParameter("subjectId")));
 
+        log.debug("PopulateBean method ended");
         return bean;
     }
 
-    /**
-     * Handles GET request.
-     * 
-     * Initializes pagination and retrieves first page of subject records.
-     * Sets list, pagination details, and forwards to view.
-     * 
-     * @param request  HttpServletRequest object
-     * @param response HttpServletResponse object
-     * @throws ServletException
-     * @throws IOException
-     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        log.info("doGet method called");
 
         int pageNo = 1;
         int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
@@ -120,10 +76,13 @@ public class SubjectListCtl extends BaseCtl {
         SubjectModel model = new SubjectModel();
 
         try {
+            log.debug("Fetching subject list pageNo=" + pageNo);
+
             List<SubjectBean> list = model.search(bean, pageNo, pageSize);
             List<SubjectBean> next = model.search(bean, pageNo + 1, pageSize);
 
             if (list == null || list.isEmpty()) {
+                log.warn("No subject records found");
                 ServletUtility.setErrorMessage("No record found", request);
             }
 
@@ -136,32 +95,17 @@ public class SubjectListCtl extends BaseCtl {
             ServletUtility.forward(getView(), request, response);
 
         } catch (ApplicationException e) {
-            e.printStackTrace();
+            log.error("Error while fetching subject list", e);
             ServletUtility.handleException(e, request, response);
             return;
         }
     }
 
-    /**
-     * Handles POST request for list operations.
-     * 
-     * Supported operations:
-     * - Search → filters results and resets page number
-     * - Next → moves to next page
-     * - Previous → moves to previous page
-     * - New → redirects to subject form
-     * - Delete → deletes selected subject records
-     * - Reset → reloads list page
-     * - Back → reloads list page
-     * 
-     * Updates list, pagination details, and forwards to view.
-     * 
-     * @param request  HttpServletRequest object
-     * @param response HttpServletResponse object
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        log.info("doPost method started");
 
         List list = null;
         List next = null;
@@ -182,6 +126,8 @@ public class SubjectListCtl extends BaseCtl {
 
             if (OP_SEARCH.equalsIgnoreCase(op) || "Next".equalsIgnoreCase(op) || "Previous".equalsIgnoreCase(op)) {
 
+                log.debug("Pagination/Search operation: " + op);
+
                 if (OP_SEARCH.equalsIgnoreCase(op)) {
                     pageNo = 1;
                 } else if (OP_NEXT.equalsIgnoreCase(op)) {
@@ -191,35 +137,54 @@ public class SubjectListCtl extends BaseCtl {
                 }
 
             } else if (OP_NEW.equalsIgnoreCase(op)) {
+
+                log.info("Redirecting to subject form");
                 ServletUtility.redirect(ORSView.SUBJECT_CTL, request, response);
                 return;
 
             } else if (OP_DELETE.equalsIgnoreCase(op)) {
+
+                log.info("Delete operation triggered");
+
                 pageNo = 1;
+
                 if (ids != null && ids.length > 0) {
+
                     SubjectBean deletebean = new SubjectBean();
+
                     for (String id : ids) {
+                        log.debug("Deleting subject id: " + id);
                         deletebean.setId(DataUtility.getInt(id));
                         model.delete(deletebean);
-                        ServletUtility.setSuccessMessage("Data is deleted successfully", request);
                     }
+
+                    ServletUtility.setSuccessMessage("Data is deleted successfully", request);
+
                 } else {
+                    log.warn("Delete attempted without selecting records");
                     ServletUtility.setErrorMessage("Select at least one record", request);
                 }
 
             } else if (OP_RESET.equalsIgnoreCase(op)) {
+
+                log.info("Reset operation triggered");
                 ServletUtility.redirect(ORSView.SUBJECT_LIST_CTL, request, response);
                 return;
 
             } else if (OP_BACK.equalsIgnoreCase(op)) {
+
+                log.info("Back operation triggered");
                 ServletUtility.redirect(ORSView.SUBJECT_LIST_CTL, request, response);
                 return;
             }
+
+            log.debug("Fetching updated subject list pageNo=" + pageNo);
 
             list = model.search(bean, pageNo, pageSize);
             next = model.search(bean, pageNo + 1, pageSize);
 
             if (list == null || list.size() == 0) {
+                log.warn("No records found after operation");
                 ServletUtility.setErrorMessage("No record found ", request);
             }
 
@@ -230,18 +195,14 @@ public class SubjectListCtl extends BaseCtl {
             request.setAttribute("nextListSize", next.size());
 
             ServletUtility.forward(getView(), request, response);
+
         } catch (ApplicationException e) {
-            e.printStackTrace();
+            log.error("Error in subject list doPost", e);
             ServletUtility.handleException(e, request, response);
             return;
         }
     }
 
-    /**
-     * Returns view associated with subject list page.
-     * 
-     * @return view path
-     */
     @Override
     protected String getView() {
         return ORSView.SUBJECT_LIST_VIEW;

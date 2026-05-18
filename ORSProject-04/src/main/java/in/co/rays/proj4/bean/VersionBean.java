@@ -2,7 +2,7 @@ package in.co.rays.proj4.bean;
 
 import java.util.Date;
 
-public class VersionBean {
+public class VersionBean extends BaseBean{
 
 	private long versionId;
 	private String versionCode;
@@ -38,5 +38,10 @@ public class VersionBean {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	@Override
+	public String getValue() {
+		// TODO Auto-generated method stub
+		return versionCode + " " + versionName;
 	}
 }

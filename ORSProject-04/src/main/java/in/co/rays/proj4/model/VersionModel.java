@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.mysql.cj.jdbc.JdbcConnection;
 
+import in.co.rays.proj4.bean.EventBean;
 import in.co.rays.proj4.bean.UserBean;
 import in.co.rays.proj4.bean.VersionBean;
 import in.co.rays.proj4.exception.ApplicationException;
@@ -25,23 +26,23 @@ public class VersionModel {
 			conn = JDBCDataSource.getConnection();
 			PreparedStatement pstmt = conn.prepareStatement("Select max(id) from st_version");
 			ResultSet rs = pstmt.executeQuery();
-			while(rs.next()) {
+			while (rs.next()) {
 				pk = rs.getInt(1);
 			}
 			rs.close();
 			pstmt.close();
 		} catch (Exception e) {
 			throw new DatabaseException("Exception : Exception in getting pk" + e.getMessage());
-		}finally {
+		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
-		return pk+1;
+		return pk + 1;
 	}
-	
+
 	public long add(VersionBean bean) throws ApplicationException, DuplicateRecordException {
 		Connection conn = null;
-		VersionBean existBean = findByname(bean.getVersionName());
-		if(existBean != null ) {
+		VersionBean existBean = findByCode(bean.getVersionCode());
+		if (existBean != null) {
 			throw new DuplicateRecordException("Version name already exist");
 		}
 		int pk = 0;
@@ -65,23 +66,24 @@ public class VersionModel {
 				throw new ApplicationException("Exception in add rollback" + ex.getMessage());
 			}
 			throw new ApplicationException("Exception in add method" + e.getMessage());
-		}finally {
+		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
 		return pk;
-		
+
 	}
-	
+
 	public void update(VersionBean bean) throws ApplicationException, DuplicateRecordException {
 		Connection conn = null;
-		VersionBean existBean = findByname(bean.getVersionName());
-		if(existBean != null ) {
+		VersionBean existBean = findByCode(bean.getVersionCode());
+		if (existBean != null && existBean.getVersionId() != bean.getVersionId()) {
 			throw new DuplicateRecordException("Version name already exist");
 		}
 		try {
 			conn = JDBCDataSource.getConnection();
 			conn.setAutoCommit(false);
-			PreparedStatement pstmt = conn.prepareStatement("update st_version set code = ?, name = ?, release_date = ?, status = ? where id = ?");
+			PreparedStatement pstmt = conn.prepareStatement(
+					"update st_version set code = ?, name = ?, release_date = ?, status = ? where id = ?");
 			pstmt.setString(1, bean.getVersionCode());
 			pstmt.setString(2, bean.getVersionName());
 			pstmt.setDate(3, new java.sql.Date(bean.getReleaseDate().getTime()));
@@ -97,13 +99,13 @@ public class VersionModel {
 				throw new ApplicationException("Exception in update rollback" + ex.getMessage());
 			}
 			throw new ApplicationException("Exception in update method" + e.getMessage());
-		}finally {
+		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
-		
+
 	}
-	
-	public void delete (VersionBean bean) throws ApplicationException {
+
+	public void delete(VersionBean bean) throws ApplicationException {
 		Connection conn = null;
 		try {
 			conn = JDBCDataSource.getConnection();
@@ -120,11 +122,11 @@ public class VersionModel {
 				throw new ApplicationException("Exception in delete rollback" + e2.getMessage());
 			}
 			throw new ApplicationException("Exception in delete method" + e.getMessage());
-		}finally {
+		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
 	}
-	
+
 	public VersionBean findByPk(long pk) throws ApplicationException {
 		Connection conn = null;
 		VersionBean bean = null;
@@ -133,7 +135,7 @@ public class VersionModel {
 			PreparedStatement pstmt = conn.prepareStatement("select * from st_version where id = ?");
 			pstmt.setLong(1, pk);
 			ResultSet rs = pstmt.executeQuery();
-			while(rs.next()) {
+			while (rs.next()) {
 				bean = new VersionBean();
 				bean.setVersionId(rs.getLong(1));
 				bean.setVersionCode(rs.getString(2));
@@ -143,23 +145,24 @@ public class VersionModel {
 			}
 			rs.close();
 			pstmt.close();
-			
+
 		} catch (Exception e) {
 			throw new ApplicationException("Exception in find by pk" + e.getMessage());
-		}finally {
+		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
 		return bean;
 	}
-	public VersionBean findByname(String name) throws ApplicationException {
+
+	public VersionBean findByCode(String code) throws ApplicationException {
 		Connection conn = null;
 		VersionBean bean = null;
 		try {
 			conn = JDBCDataSource.getConnection();
-			PreparedStatement pstmt = conn.prepareStatement("select * from st_version where name = ?");
-			pstmt.setString(1, name);
+			PreparedStatement pstmt = conn.prepareStatement("select * from st_version where code = ?");
+			pstmt.setString(1, code);
 			ResultSet rs = pstmt.executeQuery();
-			while(rs.next()) {
+			while (rs.next()) {
 				bean = new VersionBean();
 				bean.setVersionId(rs.getLong(1));
 				bean.setVersionCode(rs.getString(2));
@@ -169,69 +172,74 @@ public class VersionModel {
 			}
 			rs.close();
 			pstmt.close();
-			
+
 		} catch (Exception e) {
 			throw new ApplicationException("Exception in find by pk" + e.getMessage());
-		}finally {
+		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
 		return bean;
 	}
-	
-	public List<VersionBean> search (VersionBean bean) throws ApplicationException{
+
+	public List<VersionBean> search(VersionBean bean, int pageNo, int pageSize) throws ApplicationException {
 		Connection conn = null;
-		
-		ArrayList<VersionBean> list = new ArrayList<VersionBean>();
-		
+
+		List<VersionBean> list = new ArrayList<VersionBean>();
+
 		StringBuffer sql = new StringBuffer("select * from st_version where 1=1");
-		
+
 		if (bean != null) {
-			
-			if(bean.getVersionId() > 0) {
-				
+
+			if (bean.getVersionId() > 0) {
+
 				sql.append(" and id = " + bean.getVersionId());
 			}
 			if (bean.getVersionCode() != null && bean.getVersionCode().length() > 0) {
-				
+
 				sql.append(" and code like '" + bean.getVersionCode() + "%'");
 			}
 			if (bean.getVersionName() != null && bean.getVersionName().length() > 0) {
-				
+
 				sql.append(" and name like '" + bean.getVersionName() + "%'");
 			}
 			if (bean.getReleaseDate() != null && bean.getReleaseDate().getDate() > 0) {
-				
+
 				sql.append(" and release_date = " + bean.getReleaseDate());
 			}
 			if (bean.getStatus() != null && bean.getStatus().length() > 0) {
-				
+
 				sql.append(" and status = '" + bean.getStatus() + "%'");
 			}
 		}
+		if (pageSize > 0) {
+			sql.append(" limit " + (pageNo - 1) * pageSize + "," + pageSize);
+		}
+		
+		System.out.println(sql.toString());
 		try {
 			conn = JDBCDataSource.getConnection();
 			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
 			ResultSet rs = pstmt.executeQuery();
-			while(rs.next()) {
+			while (rs.next()) {
+				bean = new VersionBean();
 				bean.setVersionId(rs.getLong(1));
 				bean.setVersionCode(rs.getString(2));
 				bean.setVersionName(rs.getString(3));
 				bean.setReleaseDate(rs.getDate(4));
 				bean.setStatus(rs.getString(5));
+				list.add(bean);
 			}
-			list.add(bean);
+
 			rs.close();
 			pstmt.close();
-			
+
 		} catch (Exception e) {
 			throw new ApplicationException("Exception in find by pk" + e.getMessage());
-		}finally {
+		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
 		return list;
-			
-		
-		
-		
+
 	}
+
 }

@@ -2,11 +2,11 @@ package in.co.rays.proj4.bean;
 
 
 
-public class RevenueBean{
+public class RevenueBean extends BaseBean{
 	
 	private long expenseId;
 	private String expenseCode;
-	private double amount;
+	private Double amount;
 	private String category;
 	private String status;
 	public long getExpenseId() {
@@ -21,10 +21,10 @@ public class RevenueBean{
 	public void setExpenseCode(String expenseCode) {
 		this.expenseCode = expenseCode;
 	}
-	public double getAmount() {
+	public Double getAmount() {
 		return amount;
 	}
-	public void setAmount(double amount) {
+	public void setAmount(Double amount) {
 		this.amount = amount;
 	}
 	public String getCategory() {
@@ -38,6 +38,11 @@ public class RevenueBean{
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	@Override
+	public String getValue() {
+		// TODO Auto-generated method stub
+		return getExpenseCode() + " " + getAmount();
 	}
 	
 

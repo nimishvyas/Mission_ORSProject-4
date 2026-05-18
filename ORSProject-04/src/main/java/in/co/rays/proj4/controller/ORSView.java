@@ -149,5 +149,25 @@ public interface ORSView {
     /** Error view and controller */
     public String ERROR_VIEW = PAGE_FOLDER + "/ErrorView.jsp";
     public String ERROR_CTL = APP_CONTEXT + "/ctl/ErrorCtl";
+    
+    /** Event view and controller */
+    public String EVENT_VIEW = PAGE_FOLDER + "/EventView.jsp";
+    public String EVENT_CTL = APP_CONTEXT + "/ctl/EventCtl";
+
+    /** Event list view and controller */
+    public String EVENT_LIST_VIEW = PAGE_FOLDER + "/EventListView.jsp";
+    public String EVENT_LIST_CTL = APP_CONTEXT + "/ctl/EventListCtl";
+
+	public String VERSION_VIEW = PAGE_FOLDER + "/VersionView.jsp";
+	public String VERSION_CTL = APP_CONTEXT + "/ctl/VersionCtl";
+	 
+	public String VERSION_LIST_VIEW = PAGE_FOLDER + "/VersionListView.jsp";
+	public String VERSION_LIST_CTL = APP_CONTEXT + "/ctl/VersionListCtl";
+
+	public String REVENUE_VIEW = PAGE_FOLDER + "/RevenueView.jsp";
+	public String REVENUE_CTL = APP_CONTEXT + "/ctl/RevenueCtl";
+	 
+	public String REVENUE_LIST_VIEW = PAGE_FOLDER + "/RevenueListView.jsp";
+	public String REVENUE_LIST_CTL = APP_CONTEXT + "/ctl/RevenueListCtl";
 
 }

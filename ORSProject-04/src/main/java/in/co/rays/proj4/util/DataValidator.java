@@ -84,6 +84,18 @@ public class DataValidator {
             return false;
         }
     }
+    public static boolean isDouble(String val) {
+        if (isNotNull(val)) {
+            try {
+                Double.parseDouble(val);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 
     /**
      * Validates whether the given string is in a proper email format.

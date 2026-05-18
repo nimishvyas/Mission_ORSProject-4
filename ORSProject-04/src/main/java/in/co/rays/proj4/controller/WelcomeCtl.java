@@ -1,10 +1,13 @@
 package in.co.rays.proj4.controller;
 
 import java.io.IOException;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
 
 import in.co.rays.proj4.util.ServletUtility;
 
@@ -28,6 +31,9 @@ import in.co.rays.proj4.util.ServletUtility;
 @WebServlet("/WelcomeCtl")
 public class WelcomeCtl extends BaseCtl {
 
+    /** Log4j Logger */
+    private static final Logger log = Logger.getLogger(WelcomeCtl.class);
+
     /**
      * Handles GET request.
      * 
@@ -39,8 +45,10 @@ public class WelcomeCtl extends BaseCtl {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        System.out.println("in welcomeCtl doGet method");
+        log.info("WelcomeCtl doGet() started");
+        
         ServletUtility.forward(getView(), request, response);
+        log.info("doGet() forwarded to view: " + getView());
     }
 
     /**
@@ -50,7 +58,7 @@ public class WelcomeCtl extends BaseCtl {
      */
     @Override
     protected String getView() {
+        log.debug("Returning Welcome view page");
         return ORSView.WELCOME_VIEW;
     }
-
 }

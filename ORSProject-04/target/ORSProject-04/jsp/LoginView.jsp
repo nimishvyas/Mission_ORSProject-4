@@ -7,7 +7,7 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>Insert title here</title>
+<title>Login</title>
 </head>
 <body>
 	<%@ include file="Header.jsp"%>
@@ -37,7 +37,7 @@
 				</tr>
 				<tr>
 					<th>Password:</th>
-					<td><input type="text" name="password" placeholder="Enter password"
+					<td><input type="password" name="password" placeholder="Enter password"
 						value="<%=DataUtility.getStringData(bean.getPassword())%>"></td>
 					<td style="position: fixed;"><font color="red"><%=ServletUtility.getErrorMessage("password", request)%></font></td>
 				</tr>

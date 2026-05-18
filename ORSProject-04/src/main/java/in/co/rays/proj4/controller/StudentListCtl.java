@@ -8,6 +8,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import in.co.rays.proj4.bean.BaseBean;
 import in.co.rays.proj4.bean.StudentBean;
 import in.co.rays.proj4.exception.ApplicationException;
@@ -16,44 +18,16 @@ import in.co.rays.proj4.util.DataUtility;
 import in.co.rays.proj4.util.PropertyReader;
 import in.co.rays.proj4.util.ServletUtility;
 
-/**
- * StudentListCtl handles listing, searching, pagination,
- * and deletion of Student records.
- * 
- * It provides:
- * - Displaying list of students
- * - Searching students based on criteria
- * - Pagination (Next/Previous)
- * - Deleting selected student records
- * - Navigation to student form
- * 
- * Flow:
- * - GET request → loads initial student list with default pagination
- * - POST request → handles search, pagination, delete, reset, and navigation operations
- * 
- * This controller extends BaseCtl to reuse common functionalities
- * like DTO population and request handling.
- * 
- * URL Mapping: /StudentListCtl
- * 
- * @author Nimish
- */
 @WebServlet(name = "StudentListCtl", urlPatterns = { "/ctl/StudentListCtl" })
 public class StudentListCtl extends BaseCtl {
 
-    /**
-     * Populates StudentBean with search criteria from request.
-     * 
-     * Maps:
-     * - firstName
-     * - lastName
-     * - email
-     * 
-     * @param request HttpServletRequest object
-     * @return populated StudentBean object
-     */
+    /** Logger instance */
+    private static final Logger log = Logger.getLogger(StudentListCtl.class);
+
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
+
+        log.debug("PopulateBean method started");
 
         StudentBean bean = new StudentBean();
 
@@ -61,22 +35,14 @@ public class StudentListCtl extends BaseCtl {
         bean.setLastName(DataUtility.getString(request.getParameter("lastName")));
         bean.setEmail(DataUtility.getString(request.getParameter("email")));
 
+        log.debug("PopulateBean method ended");
         return bean;
     }
 
-    /**
-     * Handles GET request.
-     * 
-     * Initializes pagination and retrieves first page of student records.
-     * Sets list, pagination details, and forwards to view.
-     * 
-     * @param request  HttpServletRequest object
-     * @param response HttpServletResponse object
-     * @throws ServletException
-     * @throws IOException
-     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        log.info("doGet method called");
 
         int pageNo = 1;
         int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
@@ -85,10 +51,13 @@ public class StudentListCtl extends BaseCtl {
         StudentModel model = new StudentModel();
 
         try {
+            log.debug("Fetching student list pageNo=" + pageNo);
+
             List<StudentBean> list = model.search(bean, pageNo, pageSize);
             List<StudentBean> next = model.search(bean, pageNo + 1, pageSize);
 
             if (list == null || list.isEmpty()) {
+                log.warn("No student records found");
                 ServletUtility.setErrorMessage("No record found", request);
             }
 
@@ -101,34 +70,17 @@ public class StudentListCtl extends BaseCtl {
             ServletUtility.forward(getView(), request, response);
 
         } catch (ApplicationException e) {
-            e.printStackTrace();
+            log.error("Error while fetching student list", e);
             ServletUtility.handleException(e, request, response);
             return;
         }
     }
 
-    /**
-     * Handles POST request for list operations.
-     * 
-     * Supported operations:
-     * - Search → filters results and resets page number
-     * - Next → moves to next page
-     * - Previous → moves to previous page
-     * - New → redirects to student form
-     * - Delete → deletes selected student records
-     * - Reset → reloads list page
-     * - Back → reloads list page
-     * 
-     * Updates list, pagination details, and forwards to view.
-     * 
-     * @param request  HttpServletRequest object
-     * @param response HttpServletResponse object
-     * @throws ServletException
-     * @throws IOException
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        log.info("doPost method started");
 
         List list = null;
         List next = null;
@@ -149,6 +101,8 @@ public class StudentListCtl extends BaseCtl {
 
             if (OP_SEARCH.equalsIgnoreCase(op) || "Next".equalsIgnoreCase(op) || "Previous".equalsIgnoreCase(op)) {
 
+                log.debug("Pagination/Search operation: " + op);
+
                 if (OP_SEARCH.equalsIgnoreCase(op)) {
                     pageNo = 1;
                 } else if (OP_NEXT.equalsIgnoreCase(op)) {
@@ -158,35 +112,54 @@ public class StudentListCtl extends BaseCtl {
                 }
 
             } else if (OP_NEW.equalsIgnoreCase(op)) {
+
+                log.info("Redirecting to student form");
                 ServletUtility.redirect(ORSView.STUDENT_CTL, request, response);
                 return;
 
             } else if (OP_DELETE.equalsIgnoreCase(op)) {
+
+                log.info("Delete operation triggered");
+
                 pageNo = 1;
+
                 if (ids != null && ids.length > 0) {
+
                     StudentBean deletebean = new StudentBean();
+
                     for (String id : ids) {
+                        log.debug("Deleting student id: " + id);
                         deletebean.setId(DataUtility.getInt(id));
                         model.delete(deletebean);
-                        ServletUtility.setSuccessMessage("Student is deleted successfully", request);
                     }
+
+                    ServletUtility.setSuccessMessage("Student is deleted successfully", request);
+
                 } else {
+                    log.warn("Delete attempted without selecting records");
                     ServletUtility.setErrorMessage("Select at least one record", request);
                 }
 
             } else if (OP_RESET.equalsIgnoreCase(op)) {
+
+                log.info("Reset operation triggered");
                 ServletUtility.redirect(ORSView.STUDENT_LIST_CTL, request, response);
                 return;
 
             } else if (OP_BACK.equalsIgnoreCase(op)) {
+
+                log.info("Back operation triggered");
                 ServletUtility.redirect(ORSView.STUDENT_LIST_CTL, request, response);
                 return;
             }
+
+            log.debug("Fetching updated student list pageNo=" + pageNo);
 
             list = model.search(bean, pageNo, pageSize);
             next = model.search(bean, pageNo + 1, pageSize);
 
             if (list == null || list.size() == 0) {
+                log.warn("No records found after operation");
                 ServletUtility.setErrorMessage("No record found ", request);
             }
 
@@ -197,21 +170,16 @@ public class StudentListCtl extends BaseCtl {
             request.setAttribute("nextListSize", next.size());
 
             ServletUtility.forward(getView(), request, response);
+
         } catch (ApplicationException e) {
-            e.printStackTrace();
+            log.error("Error in student list doPost", e);
             ServletUtility.handleException(e, request, response);
             return;
         }
     }
 
-    /**
-     * Returns view associated with student list page.
-     * 
-     * @return view path
-     */
     @Override
     protected String getView() {
         return ORSView.STUDENT_LIST_VIEW;
     }
-
 }

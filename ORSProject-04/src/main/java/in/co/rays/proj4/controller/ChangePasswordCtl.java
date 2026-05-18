@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
+
 import in.co.rays.proj4.bean.BaseBean;
 import in.co.rays.proj4.bean.UserBean;
 import in.co.rays.proj4.exception.ApplicationException;
@@ -41,6 +43,9 @@ import in.co.rays.proj4.util.ServletUtility;
 @WebServlet(name = "ChangePasswordCtl", urlPatterns = { "/ctl/ChangePasswordCtl" })
 public class ChangePasswordCtl extends BaseCtl {
 
+    /** Log4j Logger */
+    private static final Logger log = Logger.getLogger(ChangePasswordCtl.class);
+
     /** Operation constant for navigating to profile page */
     public static final String OP_CHANGE_MY_PROFILE = "Change My Profile";
 
@@ -62,6 +67,7 @@ public class ChangePasswordCtl extends BaseCtl {
      */
     @Override
     protected boolean validate(HttpServletRequest request) {
+        log.debug("ChangePasswordCtl validate() called");
 
         boolean pass = true;
 
@@ -101,6 +107,7 @@ public class ChangePasswordCtl extends BaseCtl {
             pass = false;
         }
 
+        log.debug("Validation result: " + pass);
         return pass;
     }
 
@@ -118,6 +125,7 @@ public class ChangePasswordCtl extends BaseCtl {
      */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
+        log.debug("ChangePasswordCtl populateBean() called");
 
         UserBean bean = new UserBean();
 
@@ -139,7 +147,9 @@ public class ChangePasswordCtl extends BaseCtl {
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        log.info("ChangePasswordCtl doGet() started");
         ServletUtility.forward(getView(), request, response);
+        log.info("doGet() forwarded to view: " + getView());
     }
 
     /**
@@ -160,6 +170,8 @@ public class ChangePasswordCtl extends BaseCtl {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        log.info("ChangePasswordCtl doPost() started");
+
         String op = DataUtility.getString(request.getParameter("operation"));
         String newPassword = (String) request.getParameter("newPassword");
 
@@ -171,6 +183,7 @@ public class ChangePasswordCtl extends BaseCtl {
         long id = user.getId();
 
         if (OP_SAVE.equalsIgnoreCase(op)) {
+            log.debug("Operation: SAVE");
             try {
                 boolean flag = model.changePassword(id, bean.getPassword(), newPassword);
                 if (flag == true) {
@@ -178,19 +191,24 @@ public class ChangePasswordCtl extends BaseCtl {
                     session.setAttribute("user", bean);
                     ServletUtility.setBean(bean, request);
                     ServletUtility.setSuccessMessage("Password has been changed Successfully", request);
+                    log.info("Password changed successfully for user id=" + id);
                 }
             } catch (RecordNotFoundException e) {
                 ServletUtility.setErrorMessage("Old Password is Invalid", request);
+                log.warn("Invalid old password for user id=" + id);
             } catch (ApplicationException e) {
+                log.error("ApplicationException in doPost() SAVE", e);
                 e.printStackTrace();
                 ServletUtility.handleException(e, request, response);
                 return;
             }
         } else if (OP_CHANGE_MY_PROFILE.equalsIgnoreCase(op)) {
+            log.info("Operation: CHANGE_MY_PROFILE, redirecting to MY_PROFILE_CTL");
             ServletUtility.redirect(ORSView.MY_PROFILE_CTL, request, response);
             return;
         }
         ServletUtility.forward(ORSView.CHANGE_PASSWORD_VIEW, request, response);
+        log.info("doPost() forwarded to view: " + ORSView.CHANGE_PASSWORD_VIEW);
     }
 
     /**
@@ -200,6 +218,7 @@ public class ChangePasswordCtl extends BaseCtl {
      */
     @Override
     protected String getView() {
+        log.debug("Returning ChangePassword view page");
         return ORSView.CHANGE_PASSWORD_VIEW;
     }
 }

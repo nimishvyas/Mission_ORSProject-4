@@ -98,10 +98,9 @@
 					<td align="center">Physics</td>
 					<td align="center"><%=physics%> <%
  if (physics < 33) {
- %><span style="color: red">*</span>
-						<%
-						}
-						%></td>
+ %><span style="color: red">*</span> <%
+ }
+ %></td>
 					<td align="center">100</td>
 					<td align="center">
 						<%
@@ -118,11 +117,9 @@
 						} else if (physics >= 33 && physics <= 50) {
 						%>D<%
 						} else if (physics >= 0 && physics < 33) {
-						%><span
-						style="color: red;">F</span>
-						<%
-						}
-						%>
+						%><span style="color: red;">F</span> <%
+ }
+ %>
 					</td>
 				</tr>
 
@@ -130,10 +127,9 @@
 					<td align="center">Chemistry</td>
 					<td align="center"><%=chemistry%> <%
  if (chemistry < 33) {
- %><span style="color: red">*</span>
-						<%
-						}
-						%></td>
+ %><span style="color: red">*</span> <%
+ }
+ %></td>
 					<td align="center">100</td>
 					<td align="center">
 						<%
@@ -150,11 +146,9 @@
 						} else if (chemistry >= 33 && chemistry <= 50) {
 						%>D<%
 						} else if (chemistry >= 0 && chemistry < 33) {
-						%><span
-						style="color: red;">F</span>
-						<%
-						}
-						%>
+						%><span style="color: red;">F</span> <%
+ }
+ %>
 					</td>
 				</tr>
 
@@ -162,10 +156,9 @@
 					<td align="center">Maths</td>
 					<td align="center"><%=maths%> <%
  if (maths < 33) {
- %><span style="color: red">*</span>
-						<%
-						}
-						%></td>
+ %><span style="color: red">*</span> <%
+ }
+ %></td>
 					<td align="center">100</td>
 					<td align="center">
 						<%
@@ -182,11 +175,9 @@
 						} else if (maths >= 33 && maths <= 50) {
 						%>D<%
 						} else if (maths >= 0 && maths < 33) {
-						%><span
-						style="color: red;">F</span>
-						<%
-						}
-						%>
+						%><span style="color: red;">F</span> <%
+ }
+ %>
 					</td>
 				</tr>
 			</table>
@@ -202,35 +193,29 @@
 				<tr>
 					<th align="center"><%=total%> <%
  if (total < 99 || physics < 33 || chemistry < 33 || maths < 33) {
- %><span style="color: red;">*</span>
-						<%
-						}
-						%></th>
+ %><span style="color: red;">*</span> <%
+ }
+ %></th>
 					<th align="center"><%=percentage%> %</th>
 					<th align="center">
 						<%
 						if (percentage >= 60 && percentage <= 100) {
-						%>1<sup>st</sup>
-						<%
-						} else if (percentage >= 40 && percentage < 60) {
-						%>2<sup>nd</sup>
-						<%
-						} else if (percentage >= 0 && percentage < 40) {
-						%>3<sup>rd</sup>
-						<%
-						}
-						%>
+						%>1<sup>st</sup> <%
+ } else if (percentage >= 40 && percentage < 60) {
+ %>2<sup>nd</sup> <%
+ } else if (percentage >= 0 && percentage < 40) {
+ %>3<sup>rd</sup> <%
+ }
+ %>
 					</th>
 					<th align="center">
 						<%
 						if (physics >= 33 && chemistry >= 33 && maths >= 33) {
-						%><span style="color: forestgreen;">Pass</span>
-						<%
-						} else {
-						%><span style="color: red;">Fail</span>
-						<%
-						}
-						%>
+						%><span style="color: forestgreen;">Pass</span> <%
+ } else {
+ %><span style="color: red;">Fail</span> <%
+ }
+ %>
 					</th>
 				</tr>
 			</table>

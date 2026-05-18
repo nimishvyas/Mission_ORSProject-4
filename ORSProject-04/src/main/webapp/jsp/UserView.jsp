@@ -6,52 +6,56 @@
 <%@page import="java.util.List"%>
 <%@page import="in.co.rays.proj4.controller.ORSView"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>Insert title here</title>
+<title>User View</title>
 </head>
 <body>
 
-	<form action="<%=ORSView.USER_CTL%>" method = "post">
-		
-		<%@ include file = "Header.jsp" %>
-		
-		<jsp:useBean id="bean" class="in.co.rays.proj4.bean.UserBean" scope="request"></jsp:useBean>
-		
+	<form action="<%=ORSView.USER_CTL%>" method="post">
+
+		<%@ include file="Header.jsp"%>
+
+		<jsp:useBean id="bean" class="in.co.rays.proj4.bean.UserBean"
+			scope="request"></jsp:useBean>
+
 		<%
-			List<UserBean> roleList = (List<UserBean>) request.getAttribute("roleList");
+		List<UserBean> roleList = (List<UserBean>) request.getAttribute("roleList");
 		%>
-		
+
 		<div align="center">
 			<h1 align="center" style="margin-bottom: -15; color: navy">
-				<% 
-					if(bean != null && bean.getId()>0){
+				<%
+				if (bean != null && bean.getId() > 0) {
 				%>Update<%
-					} else {
+				} else {
 				%>Add<%
-					}
+				}
 				%>
 				User
 			</h1>
-			
+
 			<div style="height: 15px; margin-bottom: 12px">
 				<h3 align="center">
-					<font color="red"><%=ServletUtility.getErrorMessage(request) %></font>
+					<font color="red"><%=ServletUtility.getErrorMessage(request)%></font>
 				</h3>
 				<h3 align="center">
-					<font color="green"><%=ServletUtility.getSuccessMessage(request) %></font>
+					<font color="green"><%=ServletUtility.getSuccessMessage(request)%></font>
 				</h3>
 			</div>
-			
-			<input type="hidden" name = "id" value="<%=bean.getId()%>">
-			<input type="hidden" name = "creadtedBy" value="<%=bean.getCreatedBy()%>">
-			<input type="hidden" name = "modifiedBy" value="<%=bean.getModifiedBy()%>">
-			<input type="hidden" name = "createdDatetime" value="<%=DataUtility.getTimestamp(bean.getCreatedDatetime())%>">
-			<input type="hidden" name="modifiedDatetime" value="<%=DataUtility.getTimestamp(bean.getModifiedDatetime())%>">
-			
+
+			<input type="hidden" name="id" value="<%=bean.getId()%>"> <input
+				type="hidden" name="creadtedBy" value="<%=bean.getCreatedBy()%>">
+			<input type="hidden" name="modifiedBy"
+				value="<%=bean.getModifiedBy()%>"> <input type="hidden"
+				name="createdDatetime"
+				value="<%=DataUtility.getTimestamp(bean.getCreatedDatetime())%>">
+			<input type="hidden" name="modifiedDatetime"
+				value="<%=DataUtility.getTimestamp(bean.getModifiedDatetime())%>">
+
 			<table>
 				<tr>
 					<th align="left">First Name<span style="color: red">*</span></th>
@@ -89,9 +93,9 @@
 					<td style="position: fixed;"><font color="red"> <%=ServletUtility.getErrorMessage("confirmPassword", request)%></font></td>
 				</tr>
 				<tr>
-					<th align="left">Date of Birth<span style="width: 98%"
-						style="color: red">*</span></th>
-					<td><input type="text" id="udate" name="dob" placeholder="Select Date of Birth"
+					<th align="left">Date of Birth<span style="color: red">*</span></th>
+					<td><input type="text" id="udate" name="dob"
+						placeholder="Select Date of Birth"
 						value="<%=DataUtility.getDateString(bean.getDob())%>"></td>
 					<td style="position: fixed;"><font color="red"> <%=ServletUtility.getErrorMessage("dob", request)%></font></td>
 				</tr>
@@ -99,11 +103,11 @@
 					<th align="left">Gender<span style="color: red">*</span></th>
 					<td>
 						<%
-							HashMap<String, String> map = new HashMap<String, String>();
-							map.put("Male", "Male");
-							map.put("Female", "Female");
+						HashMap<String, String> map = new HashMap<String, String>();
+						map.put("Male", "Male");
+						map.put("Female", "Female");
 
-							String htmlList = HTMLUtility.getList("gender", bean.getGender(), map);
+						String htmlList = HTMLUtility.getList("gender", bean.getGender(), map);
 						%> <%=htmlList%>
 					</td>
 					<td style="position: fixed;"><font color="red"> <%=ServletUtility.getErrorMessage("gender", request)%></font></td>
@@ -127,24 +131,22 @@
 				<tr>
 					<th></th>
 					<%
-						if (bean != null && bean.getId() > 0) {
+					if (bean != null && bean.getId() > 0) {
 					%>
-					<td align="left" colspan="2">
-					<input type="submit" name="operation" value="<%=UserCtl.OP_UPDATE%>">
-					<input type="submit" name="operation" value="<%=UserCtl.OP_CANCEL%>">
+					<td align="left" colspan="2"><input type="submit"
+						name="operation" value="<%=UserCtl.OP_UPDATE%>"> <input
+						type="submit" name="operation" value="<%=UserCtl.OP_CANCEL%>">
 						<%
-							} else {
-						%>
-					</td>
-					<td align="left" colspan="2">
-					<input type="submit" name="operation" value="<%=UserCtl.OP_SAVE%>"> 
-					<input type="submit" name="operation" value="<%=UserCtl.OP_RESET%>">
+						} else {
+						%></td>
+					<td align="left" colspan="2"><input type="submit"
+						name="operation" value="<%=UserCtl.OP_SAVE%>"> <input
+						type="submit" name="operation" value="<%=UserCtl.OP_RESET%>">
 						<%
-							}
-						%>
-					</td>
+						}
+						%></td>
 				</tr>
-			</table> 
+			</table>
 		</div>
 	</form>
 </body>

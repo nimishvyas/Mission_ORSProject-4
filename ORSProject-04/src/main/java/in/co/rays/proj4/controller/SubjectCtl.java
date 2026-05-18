@@ -8,6 +8,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import in.co.rays.proj4.bean.BaseBean;
 import in.co.rays.proj4.bean.SubjectBean;
 import in.co.rays.proj4.exception.ApplicationException;
@@ -19,62 +21,31 @@ import in.co.rays.proj4.util.DataValidator;
 import in.co.rays.proj4.util.PropertyReader;
 import in.co.rays.proj4.util.ServletUtility;
 
-/**
- * SubjectCtl handles CRUD operations for Subject entity.
- * 
- * It provides:
- * - Validation of subject input fields
- * - Preloading course list for dropdown
- * - Adding new subject records
- * - Updating existing subject records
- * - Fetching subject details by ID
- * - Navigation control for subject views
- * 
- * Flow:
- * - GET request → loads subject data (if id present) and forwards to view
- * - POST request → performs save, update, cancel, or reset operations
- * 
- * This controller extends BaseCtl to reuse common functionalities
- * like validation, DTO population, and request handling.
- * 
- * URL Mapping: /SubjectCtl
- * 
- * @author Nimish
- */
 @WebServlet(name = "SubjectCtl", urlPatterns = { "/ctl/SubjectCtl" })
 public class SubjectCtl extends BaseCtl {
 
-    /**
-     * Preloads course list for dropdown selection.
-     * 
-     * Fetches all courses and stores them in request scope.
-     * 
-     * @param request HttpServletRequest object
-     */
+    /** Logger instance */
+    private static final Logger log = Logger.getLogger(SubjectCtl.class);
+
     @Override
     protected void preload(HttpServletRequest request) {
+
+        log.debug("Preload method started");
+
         CourseModel courseModel = new CourseModel();
         try {
             List courseList = courseModel.list();
             request.setAttribute("courseList", courseList);
+            log.debug("Course list loaded, size: " + (courseList != null ? courseList.size() : 0));
         } catch (ApplicationException e) {
-            e.printStackTrace();
+            log.error("Error while preloading course list", e);
         }
     }
 
-    /**
-     * Validates input fields for subject form.
-     * 
-     * Validation rules:
-     * - Subject name must not be null
-     * - Course must be selected
-     * - Description must not be null
-     * 
-     * @param request HttpServletRequest object
-     * @return true if validation passes, false otherwise
-     */
     @Override
     protected boolean validate(HttpServletRequest request) {
+
+        log.debug("Validate method started");
 
         boolean pass = true;
 
@@ -93,25 +64,14 @@ public class SubjectCtl extends BaseCtl {
             pass = false;
         }
 
+        log.debug("Validate method ended with result: " + pass);
         return pass;
     }
 
-    /**
-     * Populates SubjectBean with request parameters.
-     * 
-     * Maps:
-     * - id
-     * - name
-     * - courseId
-     * - description
-     * 
-     * Also sets audit fields.
-     * 
-     * @param request HttpServletRequest object
-     * @return populated SubjectBean object
-     */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
+
+        log.debug("PopulateBean method started");
 
         SubjectBean bean = new SubjectBean();
 
@@ -122,20 +82,14 @@ public class SubjectCtl extends BaseCtl {
 
         populateDTO(bean, request);
 
+        log.debug("PopulateBean method ended");
         return bean;
     }
 
-    /**
-     * Handles GET request.
-     * 
-     * If id is present, fetches subject data and sets it in request scope.
-     * Then forwards to subject view.
-     * 
-     * @param request  HttpServletRequest object
-     * @param response HttpServletResponse object
-     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        log.info("doGet method called");
 
         long id = DataUtility.getLong(request.getParameter("id"));
 
@@ -143,33 +97,23 @@ public class SubjectCtl extends BaseCtl {
 
         if (id > 0) {
             try {
+                log.debug("Fetching subject with id: " + id);
                 SubjectBean bean = model.findByPk(id);
                 ServletUtility.setBean(bean, request);
             } catch (ApplicationException e) {
-                e.printStackTrace();
+                log.error("Error fetching subject by id", e);
                 ServletUtility.handleException(e, request, response);
                 return;
             }
         }
+
         ServletUtility.forward(getView(), request, response);
     }
 
-    /**
-     * Handles POST request for subject operations.
-     * 
-     * Supported operations:
-     * - Save → adds new subject record
-     * - Update → updates existing subject record
-     * - Cancel → redirects to subject list
-     * - Reset → reloads form
-     * 
-     * Handles success and error scenarios accordingly.
-     * 
-     * @param request  HttpServletRequest object
-     * @param response HttpServletResponse object
-     */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        log.info("doPost method started");
 
         String op = DataUtility.getString(request.getParameter("operation"));
 
@@ -178,50 +122,68 @@ public class SubjectCtl extends BaseCtl {
         long id = DataUtility.getLong(request.getParameter("id"));
 
         if (OP_SAVE.equalsIgnoreCase(op)) {
+
             SubjectBean bean = (SubjectBean) populateBean(request);
+
             try {
+                log.debug("Adding new subject");
                 long pk = model.add(bean);
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setSuccessMessage("Subject added successfully", request);
+
             } catch (DuplicateRecordException e) {
+                log.warn("Duplicate subject name while adding");
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setErrorMessage("Subject Name already exists", request);
+
             } catch (ApplicationException e) {
-                e.printStackTrace();
+                log.error("ApplicationException during subject add", e);
                 ServletUtility.handleException(e, request, response);
                 return;
             }
+
         } else if (OP_UPDATE.equalsIgnoreCase(op)) {
+
             SubjectBean bean = (SubjectBean) populateBean(request);
+
             try {
+                log.debug("Updating subject id: " + id);
+
                 if (id > 0) {
                     model.update(bean);
                 }
+
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setSuccessMessage("Subject updated successfully", request);
+
             } catch (DuplicateRecordException e) {
+                log.warn("Duplicate subject name while updating");
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setErrorMessage("Subject Name already exists", request);
+
             } catch (ApplicationException e) {
-                e.printStackTrace();
+                log.error("ApplicationException during subject update", e);
                 ServletUtility.handleException(e, request, response);
                 return;
             }
+
         } else if (OP_CANCEL.equalsIgnoreCase(op)) {
+
+            log.info("Cancel operation triggered");
             ServletUtility.redirect(ORSView.SUBJECT_LIST_CTL, request, response);
             return;
+
         } else if (OP_RESET.equalsIgnoreCase(op)) {
+
+            log.info("Reset operation triggered");
             ServletUtility.redirect(ORSView.SUBJECT_CTL, request, response);
             return;
         }
+
         ServletUtility.forward(getView(), request, response);
+        log.info("doPost method ended");
     }
 
-    /**
-     * Returns view associated with subject form.
-     * 
-     * @return view path
-     */
     @Override
     protected String getView() {
         return ORSView.SUBJECT_VIEW;
