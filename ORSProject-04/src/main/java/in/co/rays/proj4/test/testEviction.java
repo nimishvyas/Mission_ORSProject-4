@@ -116,7 +116,7 @@ public class testEviction {
         CacheEvictionBean bean = new CacheEvictionBean();
         bean.setKeyName("Cache");
 
-        List<CacheEvictionBean> list = model.search(bean);
+        List<CacheEvictionBean> list = model.search(bean, 1, 10);
 
         for (CacheEvictionBean b : list) {
             System.out.println(b.getEvictionId());

@@ -22,12 +22,23 @@ import in.co.rays.proj4.util.DataValidator;
 import in.co.rays.proj4.util.PropertyReader;
 import in.co.rays.proj4.util.ServletUtility;
 
+/**
+ * TimetableCtl handles add, update, validation,
+ * and retrieval operations for timetable records.
+ * 
+ * @author Nimish
+ */
 @WebServlet(name = "TimetableCtl", urlPatterns = { "/ctl/TimetableCtl" })
 public class TimetableCtl extends BaseCtl {
 
     /** Logger instance */
     private static final Logger log = Logger.getLogger(TimetableCtl.class);
 
+    /**
+     * Preloads subject and course lists.
+     * 
+     * @param request HttpServletRequest object
+     */
     @Override
     protected void preload(HttpServletRequest request) {
 
@@ -50,6 +61,12 @@ public class TimetableCtl extends BaseCtl {
         }
     }
 
+    /**
+     * Validates timetable form fields.
+     * 
+     * @param request HttpServletRequest object containing client request
+     * @return true if validation passes, otherwise false
+     */
     @Override
     protected boolean validate(HttpServletRequest request) {
 
@@ -97,6 +114,12 @@ public class TimetableCtl extends BaseCtl {
         return pass;
     }
 
+    /**
+     * Populates TimetableBean with request parameters.
+     * 
+     * @param request HttpServletRequest object
+     * @return populated BaseBean object
+     */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
 
@@ -118,6 +141,14 @@ public class TimetableCtl extends BaseCtl {
         return bean;
     }
 
+    /**
+     * Handles HTTP GET request.
+     * 
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if servlet error occurs
+     * @throws IOException      if input/output error occurs
+     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -142,6 +173,15 @@ public class TimetableCtl extends BaseCtl {
         ServletUtility.forward(getView(), request, response);
     }
 
+    /**
+     * Handles HTTP POST request for add, update,
+     * cancel, and reset operations.
+     * 
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if servlet error occurs
+     * @throws IOException      if input/output error occurs
+     */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -254,6 +294,11 @@ public class TimetableCtl extends BaseCtl {
         log.info("doPost method ended");
     }
 
+    /**
+     * Returns the view page path.
+     * 
+     * @return timetable view path
+     */
     @Override
     protected String getView() {
         return ORSView.TIMETABLE_VIEW;

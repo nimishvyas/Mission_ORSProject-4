@@ -21,12 +21,23 @@ import in.co.rays.proj4.util.DataValidator;
 import in.co.rays.proj4.util.PropertyReader;
 import in.co.rays.proj4.util.ServletUtility;
 
+/**
+ * StudentCtl handles add, update, validation,
+ * and retrieval operations for students.
+ * 
+ * @author Nimish
+ */
 @WebServlet(name = "StudentCtl", urlPatterns = { "/ctl/StudentCtl" })
 public class StudentCtl extends BaseCtl {
 
     /** Logger instance */
     private static final Logger log = Logger.getLogger(StudentCtl.class);
 
+    /**
+     * Preloads college list for dropdown.
+     * 
+     * @param request HttpServletRequest object
+     */
     @Override
     protected void preload(HttpServletRequest request) {
 
@@ -42,6 +53,12 @@ public class StudentCtl extends BaseCtl {
         }
     }
 
+    /**
+     * Validates student form fields.
+     * 
+     * @param request HttpServletRequest object containing client request
+     * @return true if validation passes, otherwise false
+     */
     @Override
     protected boolean validate(HttpServletRequest request) {
 
@@ -106,6 +123,12 @@ public class StudentCtl extends BaseCtl {
         return pass;
     }
 
+    /**
+     * Populates StudentBean with request parameters.
+     * 
+     * @param request HttpServletRequest object
+     * @return populated BaseBean object
+     */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
 
@@ -128,6 +151,14 @@ public class StudentCtl extends BaseCtl {
         return bean;
     }
 
+    /**
+     * Handles HTTP GET request.
+     * 
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if servlet error occurs
+     * @throws IOException      if input/output error occurs
+     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -152,6 +183,15 @@ public class StudentCtl extends BaseCtl {
         ServletUtility.forward(getView(), request, response);
     }
 
+    /**
+     * Handles HTTP POST request for add, update,
+     * cancel, and reset operations.
+     * 
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if servlet error occurs
+     * @throws IOException      if input/output error occurs
+     */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -226,6 +266,11 @@ public class StudentCtl extends BaseCtl {
         log.info("doPost method ended");
     }
 
+    /**
+     * Returns the view page path.
+     * 
+     * @return student view path
+     */
     @Override
     protected String getView() {
         return ORSView.STUDENT_VIEW;

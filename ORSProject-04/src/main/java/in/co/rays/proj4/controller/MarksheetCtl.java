@@ -21,12 +21,23 @@ import in.co.rays.proj4.util.DataValidator;
 import in.co.rays.proj4.util.PropertyReader;
 import in.co.rays.proj4.util.ServletUtility;
 
+/**
+ * MarksheetCtl handles add, update, validation, and retrieval
+ * operations for marksheet records.
+ * 
+ * @author Nimish
+ */
 @WebServlet(name = "MarksheetCtl", urlPatterns = { "/ctl/MarksheetCtl" })
 public class MarksheetCtl extends BaseCtl {
 
     /** Logger instance */
     private static final Logger log = Logger.getLogger(MarksheetCtl.class);
 
+    /**
+     * Preloads student list for dropdown.
+     * 
+     * @param request HttpServletRequest object
+     */
     @Override
     protected void preload(HttpServletRequest request) {
 
@@ -42,6 +53,12 @@ public class MarksheetCtl extends BaseCtl {
         }
     }
 
+    /**
+     * Validates marksheet form fields.
+     * 
+     * @param request HttpServletRequest object containing client request
+     * @return true if validation passes, otherwise false
+     */
     @Override
     protected boolean validate(HttpServletRequest request) {
 
@@ -107,6 +124,12 @@ public class MarksheetCtl extends BaseCtl {
         return pass;
     }
 
+    /**
+     * Populates MarksheetBean with request parameters.
+     * 
+     * @param request HttpServletRequest object
+     * @return populated BaseBean object
+     */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
 
@@ -136,6 +159,14 @@ public class MarksheetCtl extends BaseCtl {
         return bean;
     }
 
+    /**
+     * Handles HTTP GET request.
+     * 
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if servlet error occurs
+     * @throws IOException      if input/output error occurs
+     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -160,6 +191,15 @@ public class MarksheetCtl extends BaseCtl {
         ServletUtility.forward(getView(), request, response);
     }
 
+    /**
+     * Handles HTTP POST request for add, update, reset,
+     * and cancel operations.
+     * 
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if servlet error occurs
+     * @throws IOException      if input/output error occurs
+     */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -234,6 +274,11 @@ public class MarksheetCtl extends BaseCtl {
         log.info("doPost method ended");
     }
 
+    /**
+     * Returns the view page path.
+     * 
+     * @return marksheet view path
+     */
     @Override
     protected String getView() {
         return ORSView.MARKSHEET_VIEW;

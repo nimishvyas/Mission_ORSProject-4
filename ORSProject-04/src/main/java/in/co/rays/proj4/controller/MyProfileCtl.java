@@ -20,14 +20,26 @@ import in.co.rays.proj4.util.DataValidator;
 import in.co.rays.proj4.util.PropertyReader;
 import in.co.rays.proj4.util.ServletUtility;
 
+/**
+ * MyProfileCtl handles user profile viewing and updating operations.
+ * 
+ * @author Nimish
+ */
 @WebServlet(name = "MyProfileCtl", urlPatterns = { "/ctl/MyProfileCtl" })
 public class MyProfileCtl extends BaseCtl {
 
     /** Logger instance */
     private static final Logger log = Logger.getLogger(MyProfileCtl.class);
 
+    /** Operation constant for change password */
     public static final String OP_CHANGE_MY_PASSWORD = "Change Password";
 
+    /**
+     * Validates profile form fields.
+     * 
+     * @param request HttpServletRequest object containing client request
+     * @return true if validation passes, otherwise false
+     */
     @Override
     protected boolean validate(HttpServletRequest request) {
 
@@ -82,6 +94,12 @@ public class MyProfileCtl extends BaseCtl {
         return pass;
     }
 
+    /**
+     * Populates UserBean with request parameters.
+     * 
+     * @param request HttpServletRequest object
+     * @return populated BaseBean object
+     */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
 
@@ -103,6 +121,14 @@ public class MyProfileCtl extends BaseCtl {
         return bean;
     }
 
+    /**
+     * Handles HTTP GET request.
+     * 
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if servlet error occurs
+     * @throws IOException      if input/output error occurs
+     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -129,6 +155,15 @@ public class MyProfileCtl extends BaseCtl {
         ServletUtility.forward(getView(), request, response);
     }
 
+    /**
+     * Handles HTTP POST request for profile update
+     * and password change operations.
+     * 
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if servlet error occurs
+     * @throws IOException      if input/output error occurs
+     */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -184,6 +219,11 @@ public class MyProfileCtl extends BaseCtl {
         log.info("doPost method ended");
     }
 
+    /**
+     * Returns the view page path.
+     * 
+     * @return my profile view path
+     */
     @Override
     protected String getView() {
         return ORSView.MY_PROFILE_VIEW;

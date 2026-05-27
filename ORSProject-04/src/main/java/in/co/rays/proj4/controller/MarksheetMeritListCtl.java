@@ -17,12 +17,26 @@ import in.co.rays.proj4.util.DataUtility;
 import in.co.rays.proj4.util.PropertyReader;
 import in.co.rays.proj4.util.ServletUtility;
 
+/**
+ * MarksheetMeritListCtl handles retrieval and display
+ * of marksheet merit list records.
+ * 
+ * @author Nimish
+ */
 @WebServlet(name = "MarksheetMeritListCtl", urlPatterns = { "/ctl/MarksheetMeritListCtl" })
 public class MarksheetMeritListCtl extends BaseCtl {
 
     /** Logger instance */
     private static final Logger log = Logger.getLogger(MarksheetMeritListCtl.class);
 
+    /**
+     * Handles HTTP GET request.
+     * 
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if servlet error occurs
+     * @throws IOException      if input/output error occurs
+     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -56,6 +70,14 @@ public class MarksheetMeritListCtl extends BaseCtl {
         }
     }
 
+    /**
+     * Handles HTTP POST request.
+     * 
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if servlet error occurs
+     * @throws IOException      if input/output error occurs
+     */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -70,6 +92,11 @@ public class MarksheetMeritListCtl extends BaseCtl {
         }
     }
 
+    /**
+     * Returns the view page path.
+     * 
+     * @return merit list view path
+     */
     @Override
     protected String getView() {
         return ORSView.MARKSHEET_MERIT_LIST_VIEW;

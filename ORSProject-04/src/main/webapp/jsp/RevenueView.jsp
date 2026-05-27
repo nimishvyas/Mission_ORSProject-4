@@ -18,7 +18,7 @@
 
 <form action="<%=ORSView.REVENUE_CTL%>" method="post">
 
-	<%@ include file="Header.jsp" %>
+	<%@ include file="ModuleHeader.jsp" %>
 
 	<jsp:useBean id="bean" class="in.co.rays.proj4.bean.RevenueBean" scope="request"></jsp:useBean>
 

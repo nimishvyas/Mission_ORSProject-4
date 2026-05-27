@@ -19,25 +19,13 @@ import in.co.rays.proj4.util.DataValidator;
 import in.co.rays.proj4.util.PropertyReader;
 import in.co.rays.proj4.util.ServletUtility;
 
-/**
- * EventCtl handles CRUD operations for Event entity.
- * 
- * Features: - Validation of event fields - Add / Update event - Fetch event by
- * ID - Navigation handling
- * 
- * Flow: - GET → Load data (if id present) - POST → Perform Save, Update,
- * Cancel, Reset
- * 
- * URL: /ctl/EventCtl
- */
+
+
 @WebServlet(name = "EventCtl", urlPatterns = { "/ctl/EventCtl" })
 public class EventCtl extends BaseCtl {
 
 	private static final Logger log = Logger.getLogger(EventCtl.class);
 
-	/**
-	 * Validate Event Form
-	 */
 	@Override
 	protected boolean validate(HttpServletRequest request) {
 
@@ -75,9 +63,7 @@ public class EventCtl extends BaseCtl {
 		return pass;
 	}
 
-	/**
-	 * Populate EventBean from request
-	 */
+	
 	@Override
 	protected BaseBean populateBean(HttpServletRequest request) {
 
@@ -96,9 +82,7 @@ public class EventCtl extends BaseCtl {
 		return bean;
 	}
 
-	/**
-	 * Handle GET request
-	 */
+	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -123,9 +107,7 @@ public class EventCtl extends BaseCtl {
 		ServletUtility.forward(getView(), request, response);
 	}
 
-	/**
-	 * Handle POST request
-	 */
+	
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -189,9 +171,7 @@ public class EventCtl extends BaseCtl {
 		ServletUtility.forward(getView(), request, response);
 	}
 
-	/**
-	 * Return View
-	 */
+	
 	@Override
 	protected String getView() {
 		return ORSView.EVENT_VIEW;

@@ -18,12 +18,24 @@ import in.co.rays.proj4.util.DataUtility;
 import in.co.rays.proj4.util.PropertyReader;
 import in.co.rays.proj4.util.ServletUtility;
 
+/**
+ * MarksheetListCtl handles search, pagination,
+ * deletion, and listing of marksheet records.
+ * 
+ * @author Nimish
+ */
 @WebServlet(name = "MarksheetListCtl", urlPatterns = { "/ctl/MarksheetListCtl" })
 public class MarksheetListCtl extends BaseCtl {
 
     /** Logger instance */
     private static final Logger log = Logger.getLogger(MarksheetListCtl.class);
 
+    /**
+     * Populates MarksheetBean with request parameters.
+     * 
+     * @param request HttpServletRequest object
+     * @return populated BaseBean object
+     */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
 
@@ -37,6 +49,14 @@ public class MarksheetListCtl extends BaseCtl {
         return bean;
     }
 
+    /**
+     * Handles HTTP GET request.
+     * 
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if servlet error occurs
+     * @throws IOException      if input/output error occurs
+     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -74,6 +94,15 @@ public class MarksheetListCtl extends BaseCtl {
         }
     }
 
+    /**
+     * Handles HTTP POST request for search,
+     * pagination, delete, reset, and navigation operations.
+     * 
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if servlet error occurs
+     * @throws IOException      if input/output error occurs
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -175,6 +204,11 @@ public class MarksheetListCtl extends BaseCtl {
         }
     }
 
+    /**
+     * Returns the view page path.
+     * 
+     * @return marksheet list view path
+     */
     @Override
     protected String getView() {
         return ORSView.MARKSHEET_LIST_VIEW;

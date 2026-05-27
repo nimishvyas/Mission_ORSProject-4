@@ -44,7 +44,7 @@ import in.co.rays.proj4.util.ServletUtility;
 public class CourseListCtl extends BaseCtl {
 
     /** Log4j Logger */
-    private static final Logger log = Logger.getLogger(CourseListCtl.class);
+    Logger log = Logger.getLogger(CourseListCtl.class);
 
     /**
      * Preloads course list for dropdown or reference usage.

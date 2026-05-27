@@ -20,12 +20,23 @@ import in.co.rays.proj4.util.DataUtility;
 import in.co.rays.proj4.util.PropertyReader;
 import in.co.rays.proj4.util.ServletUtility;
 
+/**
+ * TimetableListCtl handles search, pagination,
+ * deletion, and listing operations for timetable records.
+ * 
+ * @author Nimish
+ */
 @WebServlet(name = "TimetableListCtl", urlPatterns = { "/ctl/TimetableListCtl" })
 public class TimetableListCtl extends BaseCtl {
 
     /** Logger instance */
     private static final Logger log = Logger.getLogger(TimetableListCtl.class);
 
+    /**
+     * Preloads subject and course lists.
+     * 
+     * @param request HttpServletRequest object
+     */
     @Override
     protected void preload(HttpServletRequest request) {
 
@@ -48,6 +59,12 @@ public class TimetableListCtl extends BaseCtl {
         }
     }
 
+    /**
+     * Populates TimetableBean with request parameters.
+     * 
+     * @param request HttpServletRequest object
+     * @return populated BaseBean object
+     */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
 
@@ -63,6 +80,14 @@ public class TimetableListCtl extends BaseCtl {
         return bean;
     }
 
+    /**
+     * Handles HTTP GET request.
+     * 
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if servlet error occurs
+     * @throws IOException      if input/output error occurs
+     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -100,6 +125,15 @@ public class TimetableListCtl extends BaseCtl {
         }
     }
 
+    /**
+     * Handles HTTP POST request for search,
+     * pagination, delete, reset, and navigation operations.
+     * 
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if servlet error occurs
+     * @throws IOException      if input/output error occurs
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -202,6 +236,11 @@ public class TimetableListCtl extends BaseCtl {
         }
     }
 
+    /**
+     * Returns the view page path.
+     * 
+     * @return timetable list view path
+     */
     @Override
     protected String getView() {
         return ORSView.TIMETABLE_LIST_VIEW;

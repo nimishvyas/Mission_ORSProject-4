@@ -21,16 +21,32 @@ import in.co.rays.proj4.util.DataValidator;
 import in.co.rays.proj4.util.PropertyReader;
 import in.co.rays.proj4.util.ServletUtility;
 
+/**
+ * LoginCtl handles user login, logout, and sign-up navigation.
+ * 
+ * @author Nimish
+ */
 @WebServlet("/LoginCtl")
 public class LoginCtl extends BaseCtl {
 
     /** Logger instance */
     private static final Logger log = Logger.getLogger(LoginCtl.class);
 
+    /** Operation constant for Sign In */
     public static final String OP_SIGN_IN = "Sign In";
+
+    /** Operation constant for Sign Up */
     public static final String OP_SIGN_UP = "Sign Up";
+
+    /** Operation constant for Logout */
     public static final String OP_LOG_OUT = "Logout";
 
+    /**
+     * Validates login form fields.
+     * 
+     * @param request HttpServletRequest object containing client request
+     * @return true if validation passes, otherwise false
+     */
     @Override
     protected boolean validate(HttpServletRequest request) {
 
@@ -53,14 +69,20 @@ public class LoginCtl extends BaseCtl {
         }
 
         if (DataValidator.isNull(request.getParameter("password"))) {
-			request.setAttribute("password", PropertyReader.getValue("error.require", "Password"));
-			pass = false;
-		}
+            request.setAttribute("password", PropertyReader.getValue("error.require", "Password"));
+            pass = false;
+        }
 
         log.debug("Validate method ended with result: " + pass);
         return pass;
     }
 
+    /**
+     * Populates UserBean with request parameters.
+     * 
+     * @param request HttpServletRequest object
+     * @return populated BaseBean object
+     */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
 
@@ -75,6 +97,14 @@ public class LoginCtl extends BaseCtl {
         return bean;
     }
 
+    /**
+     * Handles HTTP GET request.
+     * 
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if servlet error occurs
+     * @throws IOException      if input/output error occurs
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -93,6 +123,14 @@ public class LoginCtl extends BaseCtl {
         ServletUtility.forward(getView(), request, response);
     }
 
+    /**
+     * Handles HTTP POST request for login and sign-up operations.
+     * 
+     * @param request  HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @throws ServletException if servlet error occurs
+     * @throws IOException      if input/output error occurs
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -131,7 +169,7 @@ public class LoginCtl extends BaseCtl {
                     return;
 
                 } else {
-                    log.warn("Authentication failed for user: " + bean.getLogin());
+                	bean = (UserBean) populateBean(request);
                     ServletUtility.setBean(bean, request);
                     ServletUtility.setErrorMessage("Invalid LoginId and Password", request);
                 }
@@ -152,6 +190,11 @@ public class LoginCtl extends BaseCtl {
         log.info("doPost method ended");
     }
 
+    /**
+     * Returns the view page path.
+     * 
+     * @return login view path
+     */
     @Override
     protected String getView() {
         return ORSView.LOGIN_VIEW;

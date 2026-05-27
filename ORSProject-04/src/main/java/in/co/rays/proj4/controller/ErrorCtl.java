@@ -68,6 +68,8 @@ public class ErrorCtl extends BaseCtl {
         ServletUtility.forward(getView(), request, response);
         log.info("doPost() forwarded to view: " + getView());
     }
+    
+  
 
     /**
      * Returns error view path.

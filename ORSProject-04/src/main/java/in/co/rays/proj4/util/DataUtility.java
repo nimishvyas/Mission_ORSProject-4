@@ -71,11 +71,11 @@ public class DataUtility {
 	 * @param val the string value to convert
 	 * @return integer value or 0 if conversion fails
 	 */
-	public static int getInt(String val) {
+	public static Integer getInt(String val) {
 		if (DataValidator.isInteger(val)) {
 			return Integer.parseInt(val);
 		} else {
-			return 0;
+			return null;
 		}
 	}
 	public static Double getDouble(String val) {

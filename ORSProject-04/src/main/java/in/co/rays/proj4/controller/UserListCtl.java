@@ -21,8 +21,7 @@ import in.co.rays.proj4.util.ServletUtility;
 
 /**
  * UserListCtl handles listing, searching, pagination,
- * and deletion of User records.
- * 
+ * and deletion of User records.																					
  * It provides:
  * - Preloading role list for filtering
  * - Displaying list of users
@@ -90,7 +89,7 @@ public class UserListCtl extends BaseCtl {
         bean.setLogin(DataUtility.getString(request.getParameter("login")));
         bean.setRoleId(DataUtility.getLong(request.getParameter("roleId")));
         bean.setDob(DataUtility.getDate(request.getParameter("dob")));
-        System.out.println("8888888888888888888888888"+request.getParameter("dob"));
+        
 
         return bean;
     }
@@ -190,7 +189,7 @@ public class UserListCtl extends BaseCtl {
                 } else if (OP_NEXT.equalsIgnoreCase(op)) {
                     pageNo++;
                     log.debug("Operation: NEXT, pageNo=" + pageNo);
-                } else if (OP_PREVIOUS.equalsIgnoreCase(op)) {
+                } else if (OP_PREVIOUS.equalsIgnoreCase(op) && pageNo > 1) {
                     pageNo--;
                     log.debug("Operation: PREVIOUS, pageNo=" + pageNo);
                 }

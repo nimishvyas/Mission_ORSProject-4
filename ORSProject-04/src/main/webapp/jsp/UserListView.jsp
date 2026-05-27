@@ -45,8 +45,8 @@
 			
 			if(list.size() != 0){
 			%>
-			<input type="hidden" name="pageNo" value="<%=pageNo%>"> <input
-				type="hidden" name="pageSize" value="<%=pageSize%>">
+			<input type="hidden" name="pageNo" value="<%=pageNo%>">
+			 <input type="hidden" name="pageSize" value="<%=pageSize%>">
 
 			<table style="width: 100%">
 				<tr>

@@ -157,7 +157,7 @@ public abstract class BaseCtl extends HttpServlet {
 		String op = DataUtility.getString(request.getParameter("operation"));
 
 		if (DataValidator.isNotNull(op) && !op.equalsIgnoreCase(OP_CANCEL) && !op.equalsIgnoreCase(OP_RESET)
-				&& !op.equalsIgnoreCase(OP_DELETE) && !op.equalsIgnoreCase(OP_NEW)) {
+				&& !op.equalsIgnoreCase(OP_DELETE) && !op.equalsIgnoreCase(OP_NEW)&& !op.equalsIgnoreCase(OP_GO)) {
 			if (validate(request) == false) {
 				log.debug("Validation failed for operation: " + op);
 				BaseBean bean = populateBean(request);

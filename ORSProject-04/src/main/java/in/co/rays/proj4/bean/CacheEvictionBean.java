@@ -2,7 +2,7 @@ package in.co.rays.proj4.bean;
 
 import java.util.Date;
 
-public class CacheEvictionBean {
+public class CacheEvictionBean extends BaseBean {
 	
 	private long evictionId;
 	private String evictionCode;
@@ -38,6 +38,10 @@ public class CacheEvictionBean {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	@Override
+	public String getValue() {
+		return evictionCode + " " + keyName;
 	}
 
 }

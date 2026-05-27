@@ -71,7 +71,7 @@ public class CacheEvictionModel {
 	public void update(CacheEvictionBean bean) throws ApplicationException, DuplicateRecordException {
 		Connection conn = null;
 		CacheEvictionBean existBean = findByname(bean.getKeyName());
-		if(existBean != null ) {
+		if(existBean != null && bean.getEvictionId() != existBean.getEvictionId() ) {
 			throw new DuplicateRecordException("Event name already exist");
 		}
 		try {
@@ -174,10 +174,10 @@ public class CacheEvictionModel {
 		return bean;
 	}
 	
-	public List<CacheEvictionBean> search (CacheEvictionBean bean) throws ApplicationException{
+	public List<CacheEvictionBean> search (CacheEvictionBean bean, int pageNo, int pageSize) throws ApplicationException{
 		Connection conn = null;
 		
-		ArrayList<CacheEvictionBean> list = new ArrayList<CacheEvictionBean>();
+		List<CacheEvictionBean> list = new ArrayList<CacheEvictionBean>();
 		
 		StringBuffer sql = new StringBuffer("select * from st_eviction where 1=1");
 		
@@ -201,21 +201,27 @@ public class CacheEvictionModel {
 			}
 			if (bean.getStatus() != null && bean.getStatus().length() > 0) {
 				
-				sql.append(" and status = '" + bean.getStatus() + "%'");
+				sql.append(" and status like '" + bean.getStatus() + "%'");
 			}
 		}
+		if (pageSize > 0) {
+			sql.append(" limit " + (pageNo - 1) * pageSize + "," + pageSize);
+		}
+		System.out.println(sql);
 		try {
 			conn = JDBCDataSource.getConnection();
 			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
 			ResultSet rs = pstmt.executeQuery();
 			while(rs.next()) {
+				bean = new CacheEvictionBean();
 				bean.setEvictionId(rs.getLong(1));  
 				bean.setEvictionCode(rs.getString(2));
 				bean.setKeyName(rs.getString(3));
 				bean.setEvictionTime(rs.getDate(4));
 				bean.setStatus(rs.getString(5));
+				list.add(bean);
 			}
-			list.add(bean);
+			
 			rs.close();
 			pstmt.close();
 			

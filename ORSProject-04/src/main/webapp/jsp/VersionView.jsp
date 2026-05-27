@@ -18,7 +18,7 @@
 
 <form action="<%=ORSView.VERSION_CTL%>" method="post">
 
-	<%@ include file="Header.jsp" %>
+	<%@ include file="ModuleHeader.jsp" %>
 
 	<jsp:useBean id="bean" class="in.co.rays.proj4.bean.VersionBean" scope="request"></jsp:useBean>
 

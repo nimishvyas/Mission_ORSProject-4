@@ -169,5 +169,34 @@ public interface ORSView {
 	 
 	public String REVENUE_LIST_VIEW = PAGE_FOLDER + "/RevenueListView.jsp";
 	public String REVENUE_LIST_CTL = APP_CONTEXT + "/ctl/RevenueListCtl";
+	
+	public String GAMING_VIEW = PAGE_FOLDER + "/GamingView.jsp";
+	public String GAMING_CTL = APP_CONTEXT + "/ctl/GamingCtl";
+	 
+	public String GAMING_LIST_VIEW = PAGE_FOLDER + "/GamingListView.jsp";
+	public String GAMING_LIST_CTL = APP_CONTEXT + "/ctl/GamingListCtl";
+	
+	public String CLOUD_VIEW = PAGE_FOLDER + "/CloudView.jsp";
+	public String CLOUD_CTL = APP_CONTEXT + "/ctl/CloudCtl";
+	 
+	public String CLOUD_LIST_VIEW = PAGE_FOLDER + "/CloudListView.jsp";
+	public String CLOUD_LIST_CTL = APP_CONTEXT + "/ctl/CloudListCtl";
+	
+	public String EVICTION_VIEW = PAGE_FOLDER + "/CacheEvictionView.jsp";
+	public String EVICTION_CTL = APP_CONTEXT + "/ctl/CacheEvictionCtl";
+	 
+	public String EVICTION_LIST_VIEW = PAGE_FOLDER + "/CacheEvictionListView.jsp";
+	public String EVICTION_LIST_CTL = APP_CONTEXT + "/ctl/CacheEvictionListCtl";
+	
+	public String MEETING_VIEW = PAGE_FOLDER + "/MeetingView.jsp";
+	public String MEETING_CTL = APP_CONTEXT + "/ctl/MeetingCtl";
+	 
+	public String MEETING_LIST_VIEW = PAGE_FOLDER + "/MeetingListView.jsp";
+	public String MEETING_LIST_CTL = APP_CONTEXT + "/ctl/MeetingListCtl";
+
+	public String MODULE_VIEW = PAGE_FOLDER + "/ModuleView.jsp";
+	public String MODULE_CTL = APP_CONTEXT + "/ctl/ModuleCtl";
+	
+
 
 }
