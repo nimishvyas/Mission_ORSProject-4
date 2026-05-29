@@ -59,10 +59,15 @@
 	<a href="<%=ORSView.EVICTION_CTL%>"><b>Add Eviction</b></a>
 	<b>|</b>
 	<a href="<%=ORSView.EVICTION_LIST_CTL%>"><b>Eviction List</b></a>
+	<b>|</b>
+	<a href="<%=ORSView.MEETING_CTL%>"><b>Add Meeting</b></a>
+	<b>|</b>
+	<a href="<%=ORSView.MEETING_LIST_CTL%>"><b>Meeting List</b></a>
 	<%
 		}
 	%>
 	
 <hr>
 </body>
+<%@ include file="Footer.jsp"%>
 </html>

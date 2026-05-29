@@ -18,7 +18,7 @@
 
 <form action="<%=ORSView.EVICTION_CTL%>" method="post">
 
-	<%@ include file="Header.jsp" %>
+	<%@ include file="ModuleHeader.jsp" %>
 
 	<jsp:useBean id="bean" class="in.co.rays.proj4.bean.CacheEvictionBean" scope="request"></jsp:useBean>
 

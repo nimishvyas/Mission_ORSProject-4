@@ -22,7 +22,7 @@
 </head>
 <body>
 
-	<%@include file="Header.jsp"%>
+	<%@include file="ModuleHeader.jsp"%>
 
 	<jsp:useBean id="bean" class="in.co.rays.proj4.bean.MeetingBean"
 		scope="request"></jsp:useBean>
@@ -68,8 +68,8 @@
 						name="platform"
 						value="<%=ServletUtility.getParameter("platform", request)%>">&emsp;
 						
- 						  <input type="submit" name="operation" value="<%=GamingListCtl.OP_SEARCH%>"> &nbsp;
-						 <input type="submit" name="operation" value="<%=GamingListCtl.OP_RESET%>"></td>
+ 						  <input type="submit" name="operation" value="<%=MeetingListCtl.OP_SEARCH%>"> &nbsp;
+						 <input type="submit" name="operation" value="<%=MeetingListCtl.OP_RESET%>"></td>
 				</tr>
 			</table>
 

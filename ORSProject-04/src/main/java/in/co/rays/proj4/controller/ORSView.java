@@ -150,6 +150,9 @@ public interface ORSView {
     public String ERROR_VIEW = PAGE_FOLDER + "/ErrorView.jsp";
     public String ERROR_CTL = APP_CONTEXT + "/ctl/ErrorCtl";
     
+    public String MODULE_VIEW = PAGE_FOLDER + "/ModuleView.jsp";
+	public String MODULE_CTL = APP_CONTEXT + "/ctl/ModuleCtl";
+    
     /** Event view and controller */
     public String EVENT_VIEW = PAGE_FOLDER + "/EventView.jsp";
     public String EVENT_CTL = APP_CONTEXT + "/ctl/EventCtl";
@@ -193,9 +196,12 @@ public interface ORSView {
 	 
 	public String MEETING_LIST_VIEW = PAGE_FOLDER + "/MeetingListView.jsp";
 	public String MEETING_LIST_CTL = APP_CONTEXT + "/ctl/MeetingListCtl";
+	
+	public String ATM_LIST_VIEW = PAGE_FOLDER + "/AtmListView.jsp";
+	public String ATM_LIST_CTL = APP_CONTEXT + "/ctl/AtmListCtl";
 
-	public String MODULE_VIEW = PAGE_FOLDER + "/ModuleView.jsp";
-	public String MODULE_CTL = APP_CONTEXT + "/ctl/ModuleCtl";
+	public String ATM_VIEW = PAGE_FOLDER + "/AtmView.jsp";
+	public String ATM_CTL = APP_CONTEXT + "/ctl/AtmCtl";
 	
 
 

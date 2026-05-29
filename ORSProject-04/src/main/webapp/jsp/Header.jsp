@@ -93,9 +93,9 @@
 	<b>|</b>
 	<a href="<%=ORSView.MODULE_CTL%>"><b>Daily Module</b></a>
 	<b>|</b>
-	<a href="<%=ORSView.MEETING_CTL%>"><b>Add Meeting</b></a>
+	<a href="<%=ORSView.ATM_CTL%>"><b>Add Atm</b></a>
 	<b>|</b>
-	<a href="<%=ORSView.MEETING_LIST_CTL%>"><b>Meeting List</b></a>
+	<a href="<%=ORSView.ATM_LIST_CTL%>"><b>Atm List</b></a>
 	
 	<%
 		}
@@ -162,4 +162,5 @@
 	%>
 	<hr>
 </body>
+<%@ include file="Footer.jsp"%>
 </html>
